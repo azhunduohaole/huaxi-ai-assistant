@@ -129,6 +129,48 @@ type ToolConfig = {
   tempFiles: string[];
 };
 
+type TaskItem = {
+  id: string;
+  title: string;
+  focusArea: string;
+  frequency: '每天' | '每周';
+  time: string;
+  status: 'enabled' | 'disabled' | 'abnormal';
+  executedRounds: number;
+  lastExecuteTime: string;
+  nextExecuteTime: string;
+  failureCount?: number;
+  badge?: string;
+};
+
+type KnowledgeBase = {
+  id: string;
+  title: string;
+  owner: string;
+  files: number;
+  desc: string;
+  created: string;
+};
+
+type KnowledgeFile = {
+  id: string;
+  name: string;
+  status: '未处理' | '处理中' | '处理完成' | '处理失败';
+  progress: number;
+  tone: 'gray' | 'blue' | 'orange';
+  source: string;
+  created: string;
+};
+
+type TemplateItem = {
+  id: string;
+  name: string;
+  scene: string;
+  prompt: string;
+  creator: string;
+  created: string;
+};
+
 const initialConversations: Conversation[] = [
   { id: 's-001', title: '冬眠的熊是一次性大量进食...', date: '2026年12月25日', summary: '比如生活在热带、亚热带地区的马来熊，它们的栖息地全年温暖，食物也相对稳定。', agent: 'secretary', pinned: true },
   { id: 's-002', title: '华熙在HA领域的最新研究成果', date: '2026年12月25日', summary: '围绕透明质酸原料、医美护理与再生医学相关资料进行知识检索。', agent: 'secretary' },
@@ -147,24 +189,58 @@ const defaultToolConfig: ToolConfig = {
   tempFiles: []
 };
 
-const taskRows = [
-  { title: '抗衰老技术领域月度情报', badge: '有新报告', status: '运行中', color: 'green' },
-  { title: '定时任务222222', status: '异常（1次任务执行失败）', color: 'orange' },
-  { title: '定时任务333333', status: '运行中', color: 'green' }
+const initialTaskRows: TaskItem[] = [
+  {
+    id: 'task-001',
+    title: '抗衰老技术领域月度情报',
+    focusArea: '关注抗衰技术专利、法规动态、竞品技术路线和科学文献进展',
+    frequency: '每周',
+    time: '14:37',
+    status: 'enabled',
+    executedRounds: 12,
+    lastExecuteTime: '2026-03-24',
+    nextExecuteTime: '2026-03-31',
+    badge: '有新报告'
+  },
+  {
+    id: 'task-002',
+    title: '定时任务222222',
+    focusArea: '透明质酸原料法规和竞品动态',
+    frequency: '每天',
+    time: '09:00',
+    status: 'abnormal',
+    failureCount: 1,
+    executedRounds: 12,
+    lastExecuteTime: '2026-03-24',
+    nextExecuteTime: '2026-03-25'
+  },
+  {
+    id: 'task-003',
+    title: '定时任务333333',
+    focusArea: '再生医学与外泌体技术趋势',
+    frequency: '每周',
+    time: '10:00',
+    status: 'enabled',
+    executedRounds: 8,
+    lastExecuteTime: '2026-03-21',
+    nextExecuteTime: '2026-03-28'
+  }
 ];
 
-const kbCards = Array.from({ length: 6 }, (_, index) => ({
-  title: '知识库1',
-  owner: 'wangdazhuang',
-  files: 16,
-  desc: '一段介绍一段介绍一段介绍一段介绍一段介绍一段介绍一段介绍一段介绍一段介绍一段介绍一段介绍一段介绍...'
+const initialKbCards: KnowledgeBase[] = Array.from({ length: 6 }, (_, index) => ({
+  id: `kb-${index + 1}`,
+  title: index === 0 ? '华熙生物麦角硫因稳定性相关数据' : `知识库${index + 1}`,
+  owner: index % 2 ? 'wangdazhuang' : '王大锤',
+  files: index === 0 ? 200 : 16 + index,
+  desc: '基于高通量测序技术的基因组分析项目，包含数据预处理、变异检测和功能注释等核心分析流程。',
+  created: `${180 - index * 8}天前`
 }));
 
-const fileRows = [
-  { name: '蛋白设计方案.docx', status: '未处理', progress: 0, tone: 'gray' },
-  { name: '蛋白设计方案.pdf', status: '处理中', progress: 50, tone: 'blue' },
-  { name: '蛋白设计方案.pdf', status: '处理完成', progress: 100, tone: 'blue' },
-  { name: '蛋白设计方案.pdf', status: '处理失败', progress: 60, tone: 'orange' }
+const initialFileRows: KnowledgeFile[] = [
+  { id: 'file-001', name: '蛋白设计方案.docx', status: '未处理', progress: 0, tone: 'gray', source: '本地上传', created: '2024/11/1 14:30:26' },
+  { id: 'file-002', name: '麦角硫因稳定性.pdf', status: '处理中', progress: 50, tone: 'blue', source: '本地上传', created: '2024/11/1 14:30:26' },
+  { id: 'file-003', name: '透明质酸功效研究.pdf', status: '处理完成', progress: 100, tone: 'blue', source: '本地上传', created: '2024/11/1 14:30:26' },
+  { id: 'file-004', name: '法规动态摘录.txt', status: '处理失败', progress: 60, tone: 'orange', source: '本地上传', created: '2024/11/1 14:30:26' }
 ];
 
 const quotaRows = [
@@ -173,10 +249,16 @@ const quotaRows = [
   { title: '坏孩子', total: '12,000次/年', used: '4678' }
 ];
 
+const initialTemplates: TemplateItem[] = [
+  { id: 'tpl-001', name: '通用科普模板', scene: '科学洞察', prompt: '用通俗语言解释技术原理，并保留关键数据来源。', creator: 'admin', created: '1天前' },
+  { id: 'tpl-002', name: '严谨科研模板', scene: '科学洞察', prompt: '以科研报告口吻输出，强调证据、引用与风险边界。', creator: 'admin', created: '3天前' }
+];
+
 function App() {
   const [view, setView] = useState<View>('home');
   const [agent, setAgent] = useState<Agent>('secretary');
   const [modal, setModal] = useState<Modal>(null);
+  const [notice, setNotice] = useState('');
   const [citationOpen, setCitationOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [historySearch, setHistorySearch] = useState('');
@@ -184,6 +266,12 @@ function App() {
   const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
   const [activeConversationId, setActiveConversationId] = useState(initialConversations[0].id);
   const [toolConfig, setToolConfig] = useState<ToolConfig>(defaultToolConfig);
+  const [tasks, setTasks] = useState<TaskItem[]>(initialTaskRows);
+  const [knowledgeBases, setKnowledgeBases] = useState<KnowledgeBase[]>(initialKbCards);
+  const [knowledgeFiles, setKnowledgeFiles] = useState<KnowledgeFile[]>(initialFileRows);
+  const [templates, setTemplates] = useState<TemplateItem[]>(initialTemplates);
+  const [taskDraft, setTaskDraft] = useState({ title: '', focusArea: '', frequency: '每天' as TaskItem['frequency'], time: '9:00' });
+  const [selectedKbId, setSelectedKbId] = useState(initialKbCards[0].id);
   const [lastQuestion, setLastQuestion] = useState('帮我找出麦角硫因稳定性相关数据');
   const [copied, setCopied] = useState(false);
   const filteredConversations = useMemo(
@@ -224,6 +312,10 @@ function App() {
   };
 
   const activeConversation = conversations.find((item) => item.id === activeConversationId) ?? conversations[0];
+  const showNotice = (message: string) => {
+    setNotice(message);
+    window.setTimeout(() => setNotice(''), 1800);
+  };
 
   const startChat = (question = draft) => {
     const normalized = question.trim() || (agent === 'secretary' ? '华熙在HA领域的最新研究成果' : '抗衰技术创新方向');
@@ -249,6 +341,136 @@ function App() {
     setToolConfig((current) => ({ ...current, ...patch }));
   };
 
+  const createTask = (patch?: Partial<typeof taskDraft>) => {
+    const source = { ...taskDraft, ...patch };
+    const focusArea = source.focusArea.trim();
+    if (!focusArea) {
+      showNotice('请输入关注领域');
+      return;
+    }
+
+    const title = source.title.trim() || `${focusArea.slice(0, 14)}${source.frequency === '每天' ? '日报' : '周报'}`;
+    const nextTask: TaskItem = {
+      id: `task-${Date.now()}`,
+      title,
+      focusArea,
+      frequency: source.frequency,
+      time: source.time,
+      status: 'enabled',
+      executedRounds: 0,
+      lastExecuteTime: '待执行',
+      nextExecuteTime: source.frequency === '每天' ? `明天 ${source.time}` : `下周一 ${source.time}`,
+      badge: '新任务'
+    };
+    setTasks((items) => [nextTask, ...items]);
+    setTaskDraft((current) => ({ ...current, title: '', focusArea: '' }));
+    showNotice('定时任务已发布');
+  };
+
+  const updateTask = (id: string, patch: Partial<TaskItem>) => {
+    setTasks((items) => items.map((item) => (item.id === id ? { ...item, ...patch } : item)));
+  };
+
+  const testTask = (id: string) => {
+    setTasks((items) =>
+      items.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              status: 'enabled',
+              failureCount: 0,
+              executedRounds: item.executedRounds + 1,
+              lastExecuteTime: '刚刚',
+              badge: '有新报告'
+            }
+          : item
+      )
+    );
+    showNotice('测试任务已触发');
+  };
+
+  const deleteTask = (id: string) => {
+    setTasks((items) => items.filter((item) => item.id !== id));
+    showNotice('定时任务已删除');
+  };
+
+  const createKnowledgeBase = (name: string, desc: string) => {
+    const normalized = name.trim();
+    if (!normalized) {
+      showNotice('请输入知识库名称');
+      return;
+    }
+    if (knowledgeBases.some((item) => item.title === normalized)) {
+      showNotice('知识库名称已存在，请更换名称');
+      return;
+    }
+    const next: KnowledgeBase = {
+      id: `kb-${Date.now()}`,
+      title: normalized,
+      owner: '王大锤',
+      files: 0,
+      desc: desc.trim() || '暂无描述',
+      created: '刚刚'
+    };
+    setKnowledgeBases((items) => [next, ...items]);
+    setSelectedKbId(next.id);
+    showNotice('知识库已创建');
+    setModal(null);
+  };
+
+  const deleteKnowledgeBase = (id: string) => {
+    setKnowledgeBases((items) => items.filter((item) => item.id !== id));
+    if (selectedKbId === id) setSelectedKbId(knowledgeBases.find((item) => item.id !== id)?.id ?? '');
+    showNotice('知识库已删除');
+  };
+
+  const uploadKnowledgeFile = (fileName: string) => {
+    const normalized = fileName.trim() || `新上传资料_${knowledgeFiles.length + 1}.pdf`;
+    const next: KnowledgeFile = {
+      id: `file-${Date.now()}`,
+      name: normalized,
+      status: '未处理',
+      progress: 0,
+      tone: 'gray',
+      source: '本地上传',
+      created: '刚刚'
+    };
+    setKnowledgeFiles((items) => [next, ...items]);
+    setKnowledgeBases((items) => items.map((item) => (item.id === selectedKbId ? { ...item, files: item.files + 1 } : item)));
+    showNotice('文件已加入处理队列');
+    setModal(null);
+  };
+
+  const deleteKnowledgeFile = (id: string) => {
+    setKnowledgeFiles((items) => items.filter((item) => item.id !== id));
+    setKnowledgeBases((items) => items.map((item) => (item.id === selectedKbId ? { ...item, files: Math.max(0, item.files - 1) } : item)));
+    showNotice('文件已删除');
+  };
+
+  const createTemplate = (name: string, prompt: string) => {
+    const normalized = name.trim();
+    if (!normalized) {
+      showNotice('请输入模板名称');
+      return;
+    }
+    const next: TemplateItem = {
+      id: `tpl-${Date.now()}`,
+      name: normalized,
+      scene: '科学洞察',
+      prompt: prompt.trim() || '按科学传播场景输出，语言清晰可信。',
+      creator: 'admin',
+      created: '刚刚'
+    };
+    setTemplates((items) => [next, ...items]);
+    showNotice('模板已创建');
+    setModal(null);
+  };
+
+  const deleteTemplate = (id: string) => {
+    setTemplates((items) => items.filter((item) => item.id !== id));
+    showNotice('模板已删除');
+  };
+
   return (
     <div className={`prototype-shell ${citationOpen && view === 'chat' ? 'with-citation' : ''}`}>
       <WindowChrome />
@@ -256,10 +478,27 @@ function App() {
       <AppSidebar
         view={view}
         conversations={filteredConversations}
+        search={historySearch}
+        setSearch={setHistorySearch}
         openView={openView}
         activeConversationId={activeConversationId}
         setActiveConversationId={setActiveConversationId}
         setAgent={setAgent}
+        renameConversation={(id, title) =>
+          setConversations((items) => items.map((item) => (item.id === id ? { ...item, title: title.trim() || item.title } : item)))
+        }
+        togglePinConversation={(id) =>
+          setConversations((items) =>
+            items
+              .map((item) => (item.id === id ? { ...item, pinned: !item.pinned } : item))
+              .sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)))
+          )
+        }
+        deleteConversation={(id) => {
+          setConversations((items) => items.filter((item) => item.id !== id));
+          if (activeConversationId === id) openView('home');
+          showNotice('对话已删除');
+        }}
         mobileMenuOpen={mobileMenuOpen}
         closeMobileMenu={() => setMobileMenuOpen(false)}
       />
@@ -304,15 +543,55 @@ function App() {
             setCopied={setCopied}
           />
         )}
-        {view === 'history' && <HistoryView search={historySearch} setSearch={setHistorySearch} />}
-        {view === 'tasks' && <TasksView setModal={setModal} />}
-        {view === 'knowledge' && <KnowledgeView setView={setView} setModal={setModal} />}
-        {view === 'kbDetail' && <KnowledgeDetail setView={setView} setModal={setModal} />}
-        {view === 'admin' && <AdminView setModal={setModal} openView={openView} />}
+        {view === 'history' && <HistoryView search={historySearch} setSearch={setHistorySearch} conversations={filteredConversations} />}
+        {view === 'tasks' && (
+          <TasksView
+            setModal={setModal}
+            tasks={tasks}
+            taskDraft={taskDraft}
+            setTaskDraft={setTaskDraft}
+            createTask={createTask}
+            updateTask={updateTask}
+            testTask={testTask}
+            deleteTask={deleteTask}
+          />
+        )}
+        {view === 'knowledge' && (
+          <KnowledgeView
+            setView={setView}
+            setModal={setModal}
+            knowledgeBases={knowledgeBases}
+            setSelectedKbId={setSelectedKbId}
+            deleteKnowledgeBase={deleteKnowledgeBase}
+          />
+        )}
+        {view === 'kbDetail' && (
+          <KnowledgeDetail
+            setView={setView}
+            setModal={setModal}
+            knowledgeBase={knowledgeBases.find((item) => item.id === selectedKbId) ?? knowledgeBases[0]}
+            files={knowledgeFiles}
+            deleteKnowledgeFile={deleteKnowledgeFile}
+          />
+        )}
+        {view === 'admin' && <AdminView setModal={setModal} openView={openView} templates={templates} deleteTemplate={deleteTemplate} />}
       </main>
       {citationOpen && view === 'chat' && <CitationDrawer onClose={() => setCitationOpen(false)} />}
-      {modal && <ModalLayer type={modal} close={() => setModal(null)} setModal={setModal} toolConfig={toolConfig} updateToolConfig={updateToolConfig} />}
-      {copied && <div className="toast">已复制</div>}
+      {modal && (
+        <ModalLayer
+          type={modal}
+          close={() => setModal(null)}
+          setModal={setModal}
+          toolConfig={toolConfig}
+          updateToolConfig={updateToolConfig}
+          knowledgeBases={knowledgeBases}
+          createTask={createTask}
+          createKnowledgeBase={createKnowledgeBase}
+          uploadKnowledgeFile={uploadKnowledgeFile}
+          createTemplate={createTemplate}
+        />
+      )}
+      {(copied || notice) && <div className="toast">{notice || '已复制'}</div>}
     </div>
   );
 }
@@ -377,23 +656,42 @@ function FeishuRail() {
 function AppSidebar({
   view,
   conversations,
+  search,
+  setSearch,
   openView,
   activeConversationId,
   setActiveConversationId,
   setAgent,
+  renameConversation,
+  togglePinConversation,
+  deleteConversation,
   mobileMenuOpen,
   closeMobileMenu
 }: {
   view: View;
   conversations: Conversation[];
+  search: string;
+  setSearch: (value: string) => void;
   openView: (view: View) => void;
   activeConversationId: string;
   setActiveConversationId: (id: string) => void;
   setAgent: (agent: Agent) => void;
+  renameConversation: (id: string, title: string) => void;
+  togglePinConversation: (id: string) => void;
+  deleteConversation: (id: string) => void;
   mobileMenuOpen: boolean;
   closeMobileMenu: () => void;
 }) {
   const adminMode = view === 'admin';
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
+
+  const saveEditing = () => {
+    if (!editingId) return;
+    renameConversation(editingId, editingTitle);
+    setEditingId(null);
+    setEditingTitle('');
+  };
 
   return (
     <aside className={`app-sidebar ${mobileMenuOpen ? 'open' : ''} ${adminMode ? 'admin-sidebar' : ''}`}>
@@ -408,7 +706,12 @@ function AppSidebar({
       {!adminMode && (
         <div className="sidebar-search">
           <Search size={15} />
-          <input placeholder="搜索对话名称" />
+          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="搜索对话名称" />
+          {search && (
+            <button aria-label="清空搜索" onClick={() => setSearch('')}>
+              <X size={13} />
+            </button>
+          )}
         </div>
       )}
       <nav className="side-nav" aria-label="AI助手导航">
@@ -451,7 +754,7 @@ function AppSidebar({
       {!adminMode && (
         <>
           <div className="side-history">
-            {conversations.map((item, index) => (
+            {conversations.map((item) => (
               <button
                 key={item.id}
                 className={item.id === activeConversationId ? 'current' : ''}
@@ -462,15 +765,53 @@ function AppSidebar({
                 }}
               >
                 <span className="conversation-date">{item.date}</span>
-                <strong>{item.title}</strong>
+                {editingId === item.id ? (
+                  <input
+                    className="conversation-edit"
+                    value={editingTitle}
+                    autoFocus
+                    onClick={(event) => event.stopPropagation()}
+                    onChange={(event) => setEditingTitle(event.target.value.slice(0, 20))}
+                    onBlur={saveEditing}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') saveEditing();
+                      if (event.key === 'Escape') setEditingId(null);
+                    }}
+                  />
+                ) : (
+                  <strong>{item.pinned ? '置顶 · ' : ''}{item.title}</strong>
+                )}
                 <small>{item.summary}</small>
                 <span className="conversation-actions" aria-hidden="true">
-                  <Edit3 size={16} />
-                  <Circle size={16} />
-                  <Trash2 size={16} />
+                  <i
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setEditingId(item.id);
+                      setEditingTitle(item.title.replace(/^置顶 · /, ''));
+                    }}
+                  >
+                    <Edit3 size={16} />
+                  </i>
+                  <i
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      togglePinConversation(item.id);
+                    }}
+                  >
+                    <Circle size={16} />
+                  </i>
+                  <i
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      deleteConversation(item.id);
+                    }}
+                  >
+                    <Trash2 size={16} />
+                  </i>
                 </span>
               </button>
             ))}
+            {!conversations.length && <div className="side-empty">未找到匹配的对话</div>}
           </div>
           <button className="all-history" onClick={() => openView('history')}>
             全部会话 <span>&gt;&gt;</span>
@@ -890,34 +1231,44 @@ function BadChildAnswer({ setModal, lastQuestion, toolConfig }: { setModal: (mod
   );
 }
 
-function HistoryView({ search, setSearch }: { search: string; setSearch: (search: string) => void }) {
+function HistoryView({
+  search,
+  setSearch,
+  conversations
+}: {
+  search: string;
+  setSearch: (search: string) => void;
+  conversations: Conversation[];
+}) {
   return (
     <section className="panel-page history-page">
       <h1>历史会话</h1>
       <div className="wide-search">
         <Search size={21} />
         <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="搜索历史会话" />
-        {search && <X size={18} />}
+        {search && <button onClick={() => setSearch('')} aria-label="清空历史搜索"><X size={18} /></button>}
       </div>
-      <TimelineGroup label="今天" />
-      <TimelineGroup label="本周" repeat />
+      {conversations.length ? (
+        <TimelineGroup label={search ? '搜索结果' : '今天'} conversations={conversations} />
+      ) : (
+        <div className="history-empty">未找到匹配的会话，请尝试其他关键词</div>
+      )}
     </section>
   );
 }
 
-function TimelineGroup({ label, repeat }: { label: string; repeat?: boolean }) {
-  const rows = repeat ? ['标题标题', '标题标题'] : ['标题标题'];
+function TimelineGroup({ label, conversations }: { label: string; conversations: Conversation[] }) {
   return (
     <div className="timeline-group">
       <span>{label}</span>
-      {rows.map((row, index) => (
-        <article className="history-row" key={`${label}-${index}`}>
+      {conversations.map((row) => (
+        <article className="history-row" key={row.id}>
           <div>
-            <strong>{row}</strong>
-            <p>正文</p>
+            <strong>{row.title}</strong>
+            <p>{row.summary}</p>
           </div>
           <footer>
-            <small>小秘书 ｜ 知识检索 ｜ 2026-03-24 14:37</small>
+            <small>{row.agent === 'secretary' ? '小秘书' : '坏孩子'} ｜ {row.agent === 'secretary' ? '知识检索' : '创新探索'} ｜ {row.date}</small>
             <span>
               <button aria-label="继续对话">
                 <MessageCircle size={17} />
@@ -933,7 +1284,31 @@ function TimelineGroup({ label, repeat }: { label: string; repeat?: boolean }) {
   );
 }
 
-function TasksView({ setModal }: { setModal: (modal: Modal) => void }) {
+function TasksView({
+  setModal,
+  tasks,
+  taskDraft,
+  setTaskDraft,
+  createTask,
+  updateTask,
+  testTask,
+  deleteTask
+}: {
+  setModal: (modal: Modal) => void;
+  tasks: TaskItem[];
+  taskDraft: { title: string; focusArea: string; frequency: TaskItem['frequency']; time: string };
+  setTaskDraft: React.Dispatch<React.SetStateAction<{ title: string; focusArea: string; frequency: TaskItem['frequency']; time: string }>>;
+  createTask: () => void;
+  updateTask: (id: string, patch: Partial<TaskItem>) => void;
+  testTask: (id: string) => void;
+  deleteTask: (id: string) => void;
+}) {
+  const statusMap: Record<TaskItem['status'], { text: string; color: string }> = {
+    enabled: { text: '启用中', color: 'green' },
+    disabled: { text: '已终止', color: 'gray' },
+    abnormal: { text: '异常（1次任务执行失败）', color: 'orange' }
+  };
+
   return (
     <section className="task-page">
       <h1 className="task-page-title">定时任务</h1>
@@ -941,57 +1316,100 @@ function TasksView({ setModal }: { setModal: (modal: Modal) => void }) {
         <RobotFace />
         <p>选择关注领域、时间范围并创建定时任务，AI将自动汇总最新的技术、法规和竞品动态。</p>
         <div className="task-create-bar">
-          <input className="task-title-input" placeholder="任务标题（选填）" />
-          <textarea className="task-desc-input" placeholder="在此描述您的关注领域或要点（必填）" />
-          <button className="select-button frequency-trigger" onClick={() => setModal('frequencyMenu')} aria-haspopup="menu">
-            每天 <ChevronDown size={16} />
+          <input
+            className="task-title-input"
+            value={taskDraft.title}
+            onChange={(event) => setTaskDraft((current) => ({ ...current, title: event.target.value }))}
+            placeholder="任务标题（选填）"
+          />
+          <textarea
+            className="task-desc-input"
+            value={taskDraft.focusArea}
+            onChange={(event) => setTaskDraft((current) => ({ ...current, focusArea: event.target.value }))}
+            placeholder="在此描述您的关注领域或要点（必填）"
+          />
+          <button
+            className="select-button frequency-trigger"
+            onClick={() => setTaskDraft((current) => ({ ...current, frequency: current.frequency === '每天' ? '每周' : '每天' }))}
+            aria-haspopup="menu"
+          >
+            {taskDraft.frequency} <ChevronDown size={16} />
           </button>
-          <button className="select-button time-trigger" onClick={() => setModal('taskConfig')} aria-haspopup="dialog">
-            9:00 <ChevronDown size={16} />
+          <button
+            className="select-button time-trigger"
+            onClick={() => setTaskDraft((current) => ({ ...current, time: current.time === '9:00' ? '14:00' : '9:00' }))}
+            aria-haspopup="dialog"
+          >
+            {taskDraft.time} <ChevronDown size={16} />
           </button>
           <button className="config-button" onClick={() => setModal('taskConfig')} aria-label="更多配置">
             <Filter size={21} />
           </button>
-          <button className="primary-action">发布任务</button>
+          <button className="primary-action" onClick={createTask}>发布任务</button>
         </div>
       </div>
       <div className="task-list">
-        {taskRows.map((task) => (
-          <article key={task.title} className="task-card">
+        {tasks.map((task) => {
+          const status = statusMap[task.status];
+          return (
+          <article key={task.id} className="task-card">
             {task.badge && <span className="new-report">{task.badge}</span>}
             <ReportIcon />
             <div>
               <h2>
                 {task.title}
-                <span className={`dot ${task.color}`} />
-                <em>{task.status}</em>
+                <span className={`dot ${status.color}`} />
+                <em>{task.status === 'abnormal' ? `异常（${task.failureCount ?? 1}次任务执行失败）` : status.text}</em>
               </h2>
-              <p>任务介绍任务介绍任务介绍</p>
-              <footer>频次：每周一 14:37 ｜ 已执行轮次：12 ｜ 最新执行时间：2026-3-24 ｜ 下次执行时间：2026-3-24</footer>
+              <p>{task.focusArea}</p>
+              <footer>频次：{task.frequency} {task.time} ｜ 已执行轮次：{task.executedRounds} ｜ 最新执行时间：{task.lastExecuteTime} ｜ 下次执行时间：{task.nextExecuteTime}</footer>
             </div>
             <div className="hover-actions">
-              <button className="tooltip">测试</button>
-              <button>
+              {(task.status === 'enabled' || task.status === 'abnormal') && <button className="tooltip" onClick={() => testTask(task.id)}>测试</button>}
+              <button onClick={() => updateTask(task.id, { status: task.status === 'disabled' ? 'enabled' : 'disabled' })} aria-label={task.status === 'disabled' ? '启用任务' : '终止任务'}>
                 <RotateCw size={19} />
               </button>
-              <button>
+              <button
+                onClick={() =>
+                  setTaskDraft({
+                    title: task.title,
+                    focusArea: task.focusArea,
+                    frequency: task.frequency,
+                    time: task.time
+                  })
+                }
+                aria-label="编辑任务"
+              >
                 <Edit3 size={19} />
               </button>
-              <button>
+              <button onClick={() => updateTask(task.id, { status: task.status === 'abnormal' ? 'enabled' : 'abnormal', failureCount: 1 })} aria-label="切换任务状态">
                 <Circle size={19} />
               </button>
-              <button>
+              <button onClick={() => deleteTask(task.id)} aria-label="删除任务">
                 <Trash2 size={19} />
               </button>
             </div>
           </article>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
 }
 
-function KnowledgeView({ setView, setModal }: { setView: (view: View) => void; setModal: (modal: Modal) => void }) {
+function KnowledgeView({
+  setView,
+  setModal,
+  knowledgeBases,
+  setSelectedKbId,
+  deleteKnowledgeBase
+}: {
+  setView: (view: View) => void;
+  setModal: (modal: Modal) => void;
+  knowledgeBases: KnowledgeBase[];
+  setSelectedKbId: (id: string) => void;
+  deleteKnowledgeBase: (id: string) => void;
+}) {
   return (
     <section className="knowledge-page">
       <div className="knowledge-toolbar">
@@ -1008,19 +1426,22 @@ function KnowledgeView({ setView, setModal }: { setView: (view: View) => void; s
         </button>
       </div>
       <div className="kb-grid-real">
-        {kbCards.map((card, index) => (
+        {knowledgeBases.map((card, index) => (
           <article
-            key={`${card.title}-${index}`}
+            key={card.id}
             className={`kb-card-real ${index === 4 ? 'selected show-menu' : ''}`}
-            onClick={() => setView('kbDetail')}
+            onClick={() => {
+              setSelectedKbId(card.id);
+              setView('kbDetail');
+            }}
           >
             <button className="kb-more" aria-label="更多操作" onClick={(event) => event.stopPropagation()}>
               <MoreHorizontal size={16} />
             </button>
-            <h2>华熙生物麦角硫因稳定性相关数据整理如下</h2>
-            <p>基于高通量测序技术的基因组分析项目，包含数据预处理变异检测和功能注释等核心分析流程。</p>
+            <h2>{card.title}</h2>
+            <p>{card.desc}</p>
             <footer>
-              王大锤 <i /> 180天前 <i /> 200个文件
+              {card.owner} <i /> {card.created} <i /> {card.files}个文件
             </footer>
             {index === 4 && (
               <div className="kb-action-menu" onClick={(event) => event.stopPropagation()}>
@@ -1028,7 +1449,7 @@ function KnowledgeView({ setView, setModal }: { setView: (view: View) => void; s
                   <Edit3 size={14} />
                   重命名
                 </button>
-                <button className="danger">
+                <button className="danger" onClick={() => deleteKnowledgeBase(card.id)}>
                   <Trash2 size={14} />
                   删除
                 </button>
@@ -1042,18 +1463,33 @@ function KnowledgeView({ setView, setModal }: { setView: (view: View) => void; s
   );
 }
 
-function KnowledgeDetail({ setView, setModal }: { setView: (view: View) => void; setModal: (modal: Modal) => void }) {
+function KnowledgeDetail({
+  setView,
+  setModal,
+  knowledgeBase,
+  files,
+  deleteKnowledgeFile
+}: {
+  setView: (view: View) => void;
+  setModal: (modal: Modal) => void;
+  knowledgeBase?: KnowledgeBase;
+  files: KnowledgeFile[];
+  deleteKnowledgeFile: (id: string) => void;
+}) {
   return (
     <section className="kb-detail-page">
       <div className="detail-title">
         <button onClick={() => setView('knowledge')}>
           <ChevronLeft size={24} />
         </button>
-        <h1>知识库名称</h1>
+        <h1>{knowledgeBase?.title ?? '知识库名称'}</h1>
       </div>
       <div className="file-toolbar">
         <button className="muted-primary" onClick={() => setModal('upload')}>
           上传文件
+        </button>
+        <button className="muted-primary batch-action">
+          批量下载
         </button>
         <button className="sort-select file-status-trigger" onClick={() => setModal('fileStatusMenu')} aria-haspopup="menu">
           全部 <ChevronDown size={16} />
@@ -1077,8 +1513,8 @@ function KnowledgeDetail({ setView, setModal }: { setView: (view: View) => void;
           </tr>
         </thead>
         <tbody>
-          {fileRows.map((file) => (
-            <tr key={`${file.name}-${file.status}`}>
+          {files.map((file) => (
+            <tr key={file.id}>
               <td>
                 <input type="checkbox" /> {file.name}
               </td>
@@ -1089,10 +1525,11 @@ function KnowledgeDetail({ setView, setModal }: { setView: (view: View) => void;
                 </div>
                 {file.progress}%
               </td>
-              <td>本地上传</td>
-              <td>2024/11/1 14:30:26</td>
+              <td>{file.source}</td>
+              <td>{file.created}</td>
               <td>
-                下载 <button className="delete-link">删除</button>
+                <button className="download-link" disabled={file.status === '处理中'}>下载</button>
+                <button className="delete-link" onClick={() => deleteKnowledgeFile(file.id)}>删除</button>
               </td>
             </tr>
           ))}
@@ -1103,7 +1540,17 @@ function KnowledgeDetail({ setView, setModal }: { setView: (view: View) => void;
   );
 }
 
-function AdminView({ setModal, openView }: { setModal: (modal: Modal) => void; openView: (view: View) => void }) {
+function AdminView({
+  setModal,
+  openView,
+  templates,
+  deleteTemplate
+}: {
+  setModal: (modal: Modal) => void;
+  openView: (view: View) => void;
+  templates: TemplateItem[];
+  deleteTemplate: (id: string) => void;
+}) {
   return (
     <section className="admin-page">
       <div className="admin-page-head">
@@ -1138,15 +1585,17 @@ function AdminView({ setModal, openView }: { setModal: (modal: Modal) => void; o
             新建模板
           </button>
         </div>
-        {[1, 2].map((item) => (
-          <article className="template-item" key={item}>
-            <h2>模板111111</h2>
-            <p>提示词提示词提示词提示词提示词提示词提示词提示词提示词...</p>
+        {templates.map((item) => (
+          <article className="template-item" key={item.id}>
+            <h2>{item.name}</h2>
+            <p>{item.prompt}</p>
             <footer>
-              admin ｜ 1天前 ｜ 编码
+              {item.creator} ｜ {item.created} ｜ {item.scene}
               <span>
                 <Edit3 size={18} />
-                <Trash2 size={18} />
+                <button aria-label="删除模板" onClick={() => deleteTemplate(item.id)}>
+                  <Trash2 size={18} />
+                </button>
               </span>
             </footer>
           </article>
@@ -1181,13 +1630,23 @@ function ModalLayer({
   close,
   setModal,
   toolConfig,
-  updateToolConfig
+  updateToolConfig,
+  knowledgeBases,
+  createTask,
+  createKnowledgeBase,
+  uploadKnowledgeFile,
+  createTemplate
 }: {
   type: Modal;
   close: () => void;
   setModal: (modal: Modal) => void;
   toolConfig: ToolConfig;
   updateToolConfig: (patch: Partial<ToolConfig>) => void;
+  knowledgeBases: KnowledgeBase[];
+  createTask: (patch?: { title?: string; focusArea?: string; frequency?: TaskItem['frequency']; time?: string }) => void;
+  createKnowledgeBase: (name: string, desc: string) => void;
+  uploadKnowledgeFile: (fileName: string) => void;
+  createTemplate: (name: string, prompt: string) => void;
 }) {
   return (
     <div
@@ -1196,17 +1655,17 @@ function ModalLayer({
         if (event.target === event.currentTarget) close();
       }}
     >
-      {type === 'kbPicker' && <KbPicker close={close} toolConfig={toolConfig} updateToolConfig={updateToolConfig} />}
+      {type === 'kbPicker' && <KbPicker close={close} toolConfig={toolConfig} updateToolConfig={updateToolConfig} knowledgeBases={knowledgeBases} />}
       {type === 'sceneMenu' && <SceneMenu close={close} toolConfig={toolConfig} updateToolConfig={updateToolConfig} />}
       {type === 'styleMenu' && <StyleMenu close={close} toolConfig={toolConfig} updateToolConfig={updateToolConfig} />}
       {type === 'tempFile' && <TempFileModal close={close} toolConfig={toolConfig} updateToolConfig={updateToolConfig} />}
-      {type === 'taskConfig' && <TaskConfig close={close} />}
+      {type === 'taskConfig' && <TaskConfig close={close} createTask={createTask} />}
       {type === 'frequencyMenu' && <FrequencyMenu close={close} />}
       {type === 'fileStatusMenu' && <FileStatusMenu close={close} />}
-      {type === 'createKb' && <CreateKb close={close} />}
-      {type === 'upload' && <UploadModal close={close} />}
+      {type === 'createKb' && <CreateKb close={close} createKnowledgeBase={createKnowledgeBase} />}
+      {type === 'upload' && <UploadModal close={close} uploadKnowledgeFile={uploadKnowledgeFile} />}
       {type === 'report' && <ReportModal close={close} />}
-      {type === 'template' && <TemplateModal close={close} />}
+      {type === 'template' && <TemplateModal close={close} createTemplate={createTemplate} />}
       {type === 'mobileTools' && <MobileToolsSheet close={close} setModal={setModal} />}
       {type === 'mobileScenes' && <MobileScenesSheet close={close} />}
     </div>
@@ -1295,13 +1754,14 @@ function FileStatusMenu({ close }: { close: () => void }) {
 function KbPicker({
   close,
   toolConfig,
-  updateToolConfig
+  updateToolConfig,
+  knowledgeBases
 }: {
   close: () => void;
   toolConfig: ToolConfig;
   updateToolConfig: (patch: Partial<ToolConfig>) => void;
+  knowledgeBases: KnowledgeBase[];
 }) {
-  const options = ['知识库1', '研发资料库', '华熙原料资料库', '法规与竞品情报'];
   const toggleKb = (name: string) => {
     const selected = toolConfig.selectedKbs.includes(name);
     const next = selected ? toolConfig.selectedKbs.filter((item) => item !== name) : [...toolConfig.selectedKbs, name].slice(0, 3);
@@ -1332,18 +1792,19 @@ function KbPicker({
         <input placeholder="搜索知识库名称" />
       </div>
       <div className="kb-option-list">
-        {options.map((item) => {
-          const selected = toolConfig.selectedKbs.includes(item);
+        {knowledgeBases.length ? knowledgeBases.map((item) => {
+          const selected = toolConfig.selectedKbs.includes(item.title);
           return (
-          <button key={item} className={selected ? 'selected' : ''} onClick={() => toggleKb(item)}>
+          <button key={item.id} className={selected ? 'selected' : ''} onClick={() => toggleKb(item.title)}>
             <span>
               <BookOpen size={16} />
-              {item}
+              {item.title}
+              <small>{item.files}个文件</small>
             </span>
             <i>{selected ? '✓' : '+'}</i>
           </button>
           );
-        })}
+        }) : <div className="kb-empty">您还没有创建知识库，请先前往知识库管理页面创建</div>}
       </div>
       <small className="kb-picker-tip">最多选择 3 个知识库，选择后会随提问一起参与检索。</small>
       <ModalFooter close={close} confirm="确定" />
@@ -1459,46 +1920,62 @@ function TempFileModal({
   );
 }
 
-function TaskConfig({ close }: { close: () => void }) {
+function TaskConfig({ close, createTask }: { close: () => void; createTask: (patch?: { title?: string; focusArea?: string; frequency?: TaskItem['frequency']; time?: string }) => void }) {
+  const [title, setTitle] = useState('');
+  const [focusArea, setFocusArea] = useState('');
+  const [frequency, setFrequency] = useState<TaskItem['frequency']>('每天');
+  const [time, setTime] = useState('0时');
+
+  const submit = () => {
+    createTask({ title, focusArea, frequency, time });
+    if (focusArea.trim()) close();
+  };
+
   return (
     <section className="modal-panel task-modal">
       <ModalClose close={close} />
       <h2>输入任务名称</h2>
+      <input className="task-modal-title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="任务名称（选填）" />
       <div className="task-modal-row">
         <RotateCw size={22} />
-        <button className="field-select">
-          每天 <ChevronDown size={17} />
+        <button className="field-select" onClick={() => setFrequency(frequency === '每天' ? '每周' : '每天')}>
+          {frequency} <ChevronDown size={17} />
         </button>
-        <button className="field-select">
-          0时 <ChevronDown size={17} />
+        <button className="field-select" onClick={() => setTime(time === '0时' ? '9:00' : '0时')}>
+          {time} <ChevronDown size={17} />
         </button>
       </div>
       <p>* 发布频次中设定的时间为任务执行时间，任务执行后需等待几分钟查看结果</p>
-      <textarea placeholder="在此描述您的关注领域或关注要点" />
-      <ModalFooter close={close} confirm="完成" />
+      <textarea value={focusArea} onChange={(event) => setFocusArea(event.target.value)} placeholder="在此描述您的关注领域或关注要点" />
+      <ModalFooter close={close} confirm="完成" onConfirm={submit} />
     </section>
   );
 }
 
-function CreateKb({ close }: { close: () => void }) {
+function CreateKb({ close, createKnowledgeBase }: { close: () => void; createKnowledgeBase: (name: string, desc: string) => void }) {
+  const [name, setName] = useState('');
+  const [desc, setDesc] = useState('');
+
   return (
     <section className="modal-panel form-modal">
       <ModalClose close={close} />
       <h2>创建知识库</h2>
       <label>
         <span>* 知识库名称</span>
-        <input placeholder="请输入知识库名称,不超过20字符" />
+        <input value={name} onChange={(event) => setName(event.target.value.slice(0, 40))} placeholder="请输入知识库名称,不超过40字符" />
       </label>
       <label>
         <span>描述</span>
-        <textarea placeholder="请输入知识库描述信息，不超过200字符" />
+        <textarea value={desc} onChange={(event) => setDesc(event.target.value.slice(0, 200))} placeholder="请输入知识库描述信息，不超过200字符" />
       </label>
-      <ModalFooter close={close} confirm="创建" muted />
+      <ModalFooter close={close} confirm="创建" muted onConfirm={() => createKnowledgeBase(name, desc)} />
     </section>
   );
 }
 
-function UploadModal({ close }: { close: () => void }) {
+function UploadModal({ close, uploadKnowledgeFile }: { close: () => void; uploadKnowledgeFile: (fileName: string) => void }) {
+  const [fileName, setFileName] = useState('麦角硫因稳定性资料.pdf');
+
   return (
     <section className="modal-panel upload-modal">
       <ModalClose close={close} />
@@ -1511,11 +1988,11 @@ function UploadModal({ close }: { close: () => void }) {
         <p>点击上传或拖拽本地文件至此处</p>
         <small>支持Markdown、DOC、DOCX、WPS、TXT、PDF、ZIP、XLS、XLSX格式文件</small>
       </div>
-      <div className="upload-file">xxxxxx（文件名）.zip</div>
+      <input className="upload-file-input" value={fileName} onChange={(event) => setFileName(event.target.value)} placeholder="输入模拟上传文件名" />
       <label className="toggle-line">
         <input type="checkbox" defaultChecked /> 多模态解析
       </label>
-      <ModalFooter close={close} confirm="上传" muted />
+      <ModalFooter close={close} confirm="上传" muted onConfirm={() => uploadKnowledgeFile(fileName)} />
     </section>
   );
 }
@@ -1546,14 +2023,17 @@ function ReportModal({ close }: { close: () => void }) {
   );
 }
 
-function TemplateModal({ close }: { close: () => void }) {
+function TemplateModal({ close, createTemplate }: { close: () => void; createTemplate: (name: string, prompt: string) => void }) {
+  const [name, setName] = useState('');
+  const [prompt, setPrompt] = useState('');
+
   return (
     <section className="modal-panel template-modal">
       <ModalClose close={close} />
       <h2>新建风格模板</h2>
       <label>
         <span>* 模板名称</span>
-        <input placeholder="请输入风格模板名称，建议简明扼要" />
+        <input value={name} onChange={(event) => setName(event.target.value)} placeholder="请输入风格模板名称，建议简明扼要" />
       </label>
       <label className="scene-row">
         <span>场景选择</span>
@@ -1561,9 +2041,9 @@ function TemplateModal({ close }: { close: () => void }) {
       </label>
       <label>
         <span>* 用户提示词</span>
-        <textarea placeholder="请输入用户提示词" />
+        <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="请输入用户提示词" />
       </label>
-      <ModalFooter close={close} confirm="创建" muted />
+      <ModalFooter close={close} confirm="创建" muted onConfirm={() => createTemplate(name, prompt)} />
     </section>
   );
 }
@@ -1576,11 +2056,11 @@ function ModalClose({ close }: { close: () => void }) {
   );
 }
 
-function ModalFooter({ close, confirm, muted }: { close: () => void; confirm: string; muted?: boolean }) {
+function ModalFooter({ close, confirm, muted, onConfirm }: { close: () => void; confirm: string; muted?: boolean; onConfirm?: () => void }) {
   return (
     <footer className="modal-footer">
       <button onClick={close}>取消</button>
-      <button className={muted ? 'muted-confirm' : 'confirm'}>{confirm}</button>
+      <button className={muted ? 'muted-confirm' : 'confirm'} onClick={onConfirm ?? close}>{confirm}</button>
     </footer>
   );
 }

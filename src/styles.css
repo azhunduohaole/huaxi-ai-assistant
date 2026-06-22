@@ -9960,4 +9960,129 @@ th {
     border-radius: 4px !important;
     background: #fff !important;
   }
+
+  .sidebar-search button {
+    width: 18px !important;
+    height: 18px !important;
+    min-height: 18px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: #98a3b4 !important;
+  }
+
+  .conversation-edit {
+    width: 108px !important;
+    height: 22px !important;
+    padding: 0 4px !important;
+    border: 1px solid #3370ff !important;
+    border-radius: 3px !important;
+    background: #fff !important;
+    color: #1f2937 !important;
+    font-size: 12px !important;
+    line-height: 22px !important;
+  }
+
+  .conversation-actions i {
+    width: 13px !important;
+    height: 13px !important;
+    display: inline-grid !important;
+    place-items: center !important;
+  }
+
+  .kb-detail-page .batch-action {
+    width: 72px !important;
+    background: #f5f7fb !important;
+    color: #405064 !important;
+  }
+
+  .download-link,
+  .delete-link,
+  .template-item footer button {
+    border: 0 !important;
+    background: transparent !important;
+    color: #3370ff !important;
+    padding: 0 !important;
+    font-size: 12px !important;
+  }
+
+  .download-link:disabled {
+    color: #a8b2c3 !important;
+    cursor: not-allowed !important;
+  }
+
+  .template-item footer button {
+    width: 18px !important;
+    height: 18px !important;
+    color: #667085 !important;
+    display: inline-grid !important;
+    place-items: center !important;
+  }
+
+  .task-modal-title,
+  .upload-file-input {
+    width: 100% !important;
+    height: 34px !important;
+    padding: 0 10px !important;
+    border: 1px solid #dfe5ef !important;
+    border-radius: 4px !important;
+    background: #fff !important;
+    color: #1f2937 !important;
+    font-size: 13px !important;
+  }
+
+  .task-modal-title {
+    margin: 0 0 12px !important;
+  }
+
+  .upload-file-input {
+    margin-top: 12px !important;
+  }
+
+  .side-empty,
+  .history-empty,
+  .kb-empty {
+    color: #98a3b4 !important;
+    font-size: 12px !important;
+    line-height: 20px !important;
+  }
+
+  .side-empty {
+    width: 153px !important;
+    padding: 8px !important;
+  }
+
+  .history-empty {
+    width: 670px !important;
+    height: 120px !important;
+    display: grid !important;
+    place-items: center !important;
+    border: 1px dashed #dfe5ef !important;
+    border-radius: 5px !important;
+    background: #fbfcff !important;
+  }
+
+  .history-page .wide-search button {
+    width: 22px !important;
+    height: 22px !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: #98a3b4 !important;
+  }
+
+  .kb-option-list button span small {
+    display: block !important;
+    margin-top: 2px !important;
+    color: #9aa4b5 !important;
+    font-size: 10px !important;
+    line-height: 12px !important;
+    font-weight: 400 !important;
+  }
+
+  .kb-empty {
+    padding: 12px !important;
+    border: 1px dashed #dfe5ef !important;
+    border-radius: 5px !important;
+    background: #fbfcff !important;
+  }
 }
