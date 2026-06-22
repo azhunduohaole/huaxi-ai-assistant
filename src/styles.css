@@ -7072,6 +7072,155 @@ th {
     justify-content: flex-start;
     flex-wrap: wrap;
   }
+
+  .chat-stage {
+    height: calc(100vh - 28px);
+    padding: 34px 18px 150px;
+    overflow-x: hidden;
+  }
+
+  .answer-flow {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
+  .breadcrumb {
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 12px;
+  }
+
+  .user-bubble {
+    width: fit-content;
+    max-width: 100%;
+    margin-left: auto;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .assistant-row {
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .answer-main {
+    min-width: 0;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+
+  .answer-ask {
+    font-size: 13px;
+  }
+
+  .answer-meta span {
+    height: 22px;
+    font-size: 10px;
+    padding: 0 7px;
+  }
+
+  .search-strip {
+    min-height: 36px;
+    gap: 6px;
+    padding: 0 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .search-strip svg {
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .search-label,
+  .search-separator,
+  .search-file {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .search-file {
+    max-width: 72px;
+  }
+
+  .search-strip strong {
+    flex: 0 0 auto;
+    font-size: 11px;
+  }
+
+  .data-card {
+    width: 100%;
+    padding: 12px 12px 0;
+  }
+
+  .data-card h2 {
+    font-size: 14px;
+  }
+
+  .table-box {
+    overflow-x: auto;
+  }
+
+  .table-box table {
+    min-width: 520px;
+  }
+
+  .fixed-composer {
+    position: fixed;
+    left: calc(116px + 177px + 18px);
+    right: 26px;
+    bottom: 20px;
+    width: auto;
+    transform: none;
+    z-index: 20;
+  }
+
+  .prompt-box.compact {
+    width: 100%;
+    min-width: 0;
+    min-height: 86px;
+    padding: 8px 8px 10px;
+  }
+
+  .prompt-box.compact .prompt-tools {
+    order: 0;
+    flex-wrap: nowrap;
+    padding-right: 34px;
+  }
+
+  .prompt-box.compact .prompt-line {
+    min-height: 34px;
+  }
+
+  .prompt-box.compact .prompt-input {
+    min-height: 32px;
+    font-size: 12px;
+  }
+
+  .prompt-box.compact .icon-chip,
+  .prompt-box.compact .tool-chip svg {
+    display: none;
+  }
+
+  .prompt-box.compact .tool-chip {
+    max-width: 62px;
+    overflow: hidden;
+    padding: 0 5px;
+    font-size: 9px;
+    white-space: nowrap;
+  }
+
+  .prompt-box.compact .send-circle {
+    right: 8px;
+    bottom: 8px;
+  }
 }
 
 /* MasterGo secondary pages: history, scheduled tasks, and knowledge detail share the same compact app viewport. */
