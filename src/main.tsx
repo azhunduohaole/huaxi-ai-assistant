@@ -296,7 +296,7 @@ function AppSidebar({
   return (
     <aside className={`app-sidebar ${mobileMenuOpen ? 'open' : ''} ${adminMode ? 'admin-sidebar' : ''}`}>
       <div className="app-title">
-        <AppRobotLogo />
+        <RobotFace small agent="secretary" />
         <strong>{adminMode ? '华熙AI知识助手管理端' : '华熙AI知识助手'}</strong>
         <button aria-label="关闭移动菜单" className="sidebar-close" onClick={closeMobileMenu}>
           <X size={18} />
@@ -692,7 +692,7 @@ function TasksView({ setModal }: { setModal: (modal: Modal) => void }) {
   return (
     <section className="task-page">
       <div className="task-hero">
-        <TaskBotMascot />
+        <RobotFace />
         <p>选择关注领域、时间范围并创建定时任务，AI将自动汇总最新的技术、法规和竞品动态。</p>
         <div className="task-create-bar">
           <input placeholder="在此描述您的关注领域或关注要点" />
@@ -738,26 +738,6 @@ function TasksView({ setModal }: { setModal: (modal: Modal) => void }) {
         ))}
       </div>
     </section>
-  );
-}
-
-function TaskBotMascot() {
-  return (
-    <span className="task-bot-mascot" aria-hidden="true">
-      <i />
-      <i />
-      <b />
-    </span>
-  );
-}
-
-function AppRobotLogo() {
-  return (
-    <span className="app-robot-logo" aria-hidden="true">
-      <i />
-      <i />
-      <b />
-    </span>
   );
 }
 

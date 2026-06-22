@@ -4299,31 +4299,12 @@ th {
   }
 
   .prototype-shell {
-    grid-template-columns: 96px 382px minmax(0, 1fr);
+    grid-template-columns: 72px 308px minmax(0, 1fr);
     background: #e7edf7;
   }
 
   .prototype-shell.with-citation {
-    grid-template-columns: 96px 382px minmax(0, 1fr) 520px;
-  }
-
-  .feishu-rail {
-    width: 96px;
-    padding: 14px 8px;
-  }
-
-  .user-avatar {
-    width: 46px;
-    height: 46px;
-  }
-
-  .feishu-item {
-    width: 78px;
-    min-height: 58px;
-  }
-
-  .feishu-item span {
-    font-size: 13px;
+    grid-template-columns: 72px 308px minmax(0, 1fr) 520px;
   }
 
   .app-sidebar {
@@ -4342,62 +4323,6 @@ th {
     width: 40px;
     height: 40px;
     flex-basis: 40px;
-  }
-
-  .app-robot-logo {
-    position: relative;
-    width: 56px;
-    height: 42px;
-    flex: 0 0 56px;
-    border-radius: 14px;
-    background: #6f95f6;
-    display: block;
-  }
-
-  .app-robot-logo::before,
-  .app-robot-logo::after {
-    content: "";
-    position: absolute;
-    top: 14px;
-    width: 7px;
-    height: 18px;
-    border-radius: 8px;
-    background: #8fb0ff;
-  }
-
-  .app-robot-logo::before {
-    left: -6px;
-  }
-
-  .app-robot-logo::after {
-    right: -6px;
-  }
-
-  .app-robot-logo i {
-    position: absolute;
-    top: 15px;
-    width: 5px;
-    height: 12px;
-    border-radius: 999px;
-    background: #eef4ff;
-  }
-
-  .app-robot-logo i:first-child {
-    left: 20px;
-  }
-
-  .app-robot-logo i:nth-child(2) {
-    right: 20px;
-  }
-
-  .app-robot-logo b {
-    position: absolute;
-    left: 23px;
-    bottom: 10px;
-    width: 10px;
-    height: 3px;
-    border-radius: 999px;
-    background: #eef4ff;
   }
 
   .app-title strong {
@@ -4482,7 +4407,7 @@ th {
 
   .side-history button small {
     grid-column: 1 / -1;
-    max-width: 318px;
+    max-width: 244px;
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -4702,7 +4627,7 @@ th {
 
   .kb-picker-modal {
     position: fixed;
-    left: calc(96px + 382px + 50% - 120px);
+    left: calc(72px + 308px + 50% - 120px);
     top: 378px;
     width: 340px;
     border: 1px solid var(--hx-border);
@@ -4740,7 +4665,7 @@ th {
 
   .file-status-menu {
     position: fixed;
-    left: calc(96px + 382px + 30px + 120px + 18px);
+    left: calc(72px + 308px + 30px + 120px + 18px);
     top: 136px;
     width: 132px;
     padding: 6px 0;
@@ -4775,182 +4700,9 @@ th {
     background: #eef4ff;
     color: var(--hx-blue);
   }
-
-  .fixed-composer {
-    left: calc(96px + 382px + 50%);
-  }
-
-  .prototype-shell.with-citation .fixed-composer {
-    left: calc(96px + 382px + (100vw - 96px - 382px - 520px) / 2);
-  }
-
-  .task-page {
-    padding: 24px 28px 28px;
-    background: #fff;
-  }
-
-  .task-hero {
-    min-height: 342px;
-    border: 0;
-    border-radius: 8px;
-    background: #fff;
-    box-shadow: none;
-    gap: 26px;
-  }
-
-  .task-bot-mascot {
-    position: relative;
-    width: 116px;
-    height: 116px;
-    border-radius: 34px;
-    background: #6f95f6;
-    display: grid;
-    place-items: center;
-    box-shadow: 0 8px 22px rgba(51, 112, 255, 0.12);
-  }
-
-  .task-bot-mascot::before,
-  .task-bot-mascot::after {
-    content: "";
-    position: absolute;
-    top: 42px;
-    width: 12px;
-    height: 40px;
-    border-radius: 12px;
-    background: #8fb0ff;
-  }
-
-  .task-bot-mascot::before {
-    left: -10px;
-  }
-
-  .task-bot-mascot::after {
-    right: -10px;
-  }
-
-  .task-bot-mascot i {
-    position: absolute;
-    top: 42px;
-    width: 12px;
-    height: 26px;
-    border-radius: 8px;
-    background: #eef4ff;
-  }
-
-  .task-bot-mascot i:first-child {
-    left: 40px;
-  }
-
-  .task-bot-mascot i:nth-child(2) {
-    right: 40px;
-  }
-
-  .task-bot-mascot b {
-    position: absolute;
-    left: 47px;
-    bottom: 32px;
-    width: 22px;
-    height: 6px;
-    border-radius: 999px;
-    background: #eef4ff;
-  }
-
-  .task-hero p {
-    color: #303946;
-    font-size: 20px;
-    line-height: 1.35;
-    font-weight: 600;
-  }
-
-  .task-create-bar {
-    gap: 12px;
-  }
-
-  .task-create-bar input {
-    width: 510px;
-    height: 50px;
-    border: 1.5px solid var(--hx-blue);
-    border-radius: 6px;
-    font-size: 16px;
-  }
-
-  .task-card {
-    min-height: 164px;
-    border: 1px solid #dbe3f0;
-    border-radius: 7px;
-    background: #fbfdff;
-    grid-template-columns: 70px minmax(0, 1fr) auto;
-    padding: 22px 30px;
-  }
-
-  .task-card h2 {
-    font-size: 22px;
-  }
-
-  .task-card p,
-  .task-card footer,
-  .task-card em {
-    font-size: 17px;
-  }
 }
 
 @media (max-width: 900px) {
-  .app-robot-logo {
-    position: relative;
-    width: 52px;
-    height: 40px;
-    flex: 0 0 52px;
-    border-radius: 13px;
-    background: #6f95f6;
-    display: block;
-  }
-
-  .app-robot-logo::before,
-  .app-robot-logo::after {
-    content: "";
-    position: absolute;
-    top: 14px;
-    width: 6px;
-    height: 17px;
-    border-radius: 8px;
-    background: #8fb0ff;
-  }
-
-  .app-robot-logo::before {
-    left: -5px;
-  }
-
-  .app-robot-logo::after {
-    right: -5px;
-  }
-
-  .app-robot-logo i {
-    position: absolute;
-    top: 15px;
-    width: 5px;
-    height: 11px;
-    border-radius: 999px;
-    background: #eef4ff;
-  }
-
-  .app-robot-logo i:first-child {
-    left: 18px;
-  }
-
-  .app-robot-logo i:nth-child(2) {
-    right: 18px;
-  }
-
-  .app-robot-logo b {
-    position: absolute;
-    left: 21px;
-    bottom: 10px;
-    width: 10px;
-    height: 3px;
-    border-radius: 999px;
-    background: #eef4ff;
-  }
-
   .home-avatar-anchor {
     width: 72px;
     height: 72px;
