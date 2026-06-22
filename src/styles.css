@@ -10086,3 +10086,558 @@ th {
     background: #fbfcff !important;
   }
 }
+
+/* UI spec correction: match the supplied MasterGo Feishu-home canvas. */
+@media (min-width: 560px) {
+  body {
+    background: #d7d7d7 !important;
+    overflow: auto !important;
+  }
+
+  .window-chrome {
+    width: 810px !important;
+    height: 28px !important;
+    inset: 0 auto auto 0 !important;
+    border-color: #cfd6e0 !important;
+    border-radius: 0 !important;
+  }
+
+  .window-chrome::after {
+    content: "华熙智囊" !important;
+    top: 8px !important;
+    color: #303846 !important;
+    font-size: 11px !important;
+    line-height: 12px !important;
+    font-weight: 600 !important;
+  }
+
+  .prototype-shell,
+  .prototype-shell.with-citation {
+    width: 810px !important;
+    min-width: 810px !important;
+    height: 735px !important;
+    min-height: 735px !important;
+    grid-template-columns: 116px 177px 517px 0 !important;
+    background: #edf1f6 !important;
+    overflow: hidden !important;
+  }
+
+  .feishu-rail,
+  .app-sidebar,
+  .workspace,
+  .workspace.has-citation,
+  .view-home .home-stage {
+    height: 707px !important;
+    min-height: 707px !important;
+    max-height: 707px !important;
+  }
+
+  .feishu-rail {
+    background: #eef5ff !important;
+    border-right: 1px solid #dbe3ef !important;
+  }
+
+  .feishu-item {
+    height: 25px !important;
+    min-height: 25px !important;
+    margin-bottom: 8px !important;
+    color: #667489 !important;
+  }
+
+  .feishu-item.active {
+    color: #3370ff !important;
+    background: #fff !important;
+  }
+
+  .app-sidebar {
+    width: 177px !important;
+    padding: 64px 10px 0 !important;
+    background: #f4f6f9 !important;
+    border-right: 1px solid #d9e0ea !important;
+    overflow: hidden !important;
+  }
+
+  .app-title {
+    left: 12px !important;
+    right: auto !important;
+    bottom: 8px !important;
+    width: 145px !important;
+    height: 31px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+  }
+
+  .app-title::before {
+    content: "华熙" !important;
+    position: absolute !important;
+    left: 28px !important;
+    top: -18px !important;
+    color: #28364a !important;
+    font-size: 11px !important;
+    line-height: 14px !important;
+    font-weight: 500 !important;
+  }
+
+  .app-title .robot-face.small {
+    width: 22px !important;
+    height: 22px !important;
+    flex-basis: 22px !important;
+  }
+
+  .app-title strong {
+    max-width: 112px !important;
+    color: #1f2a3a !important;
+    font-size: 11px !important;
+    line-height: 14px !important;
+    font-weight: 600 !important;
+  }
+
+  .desktop-collapse {
+    left: 11px !important;
+    top: 38px !important;
+    width: 16px !important;
+    height: 16px !important;
+    color: #627084 !important;
+  }
+
+  .sidebar-search {
+    width: 153px !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    margin: 9px 0 6px !important;
+    padding: 0 8px !important;
+    border: 1px solid #e0e5ef !important;
+    border-radius: 3px !important;
+    background: #fff !important;
+  }
+
+  .sidebar-search input {
+    font-size: 11px !important;
+    line-height: 16px !important;
+  }
+
+  .side-nav {
+    gap: 0 !important;
+    margin: 0 0 12px !important;
+  }
+
+  .side-nav button {
+    width: 153px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 7px !important;
+    gap: 7px !important;
+    color: #263445 !important;
+    font-size: 12px !important;
+    line-height: 30px !important;
+    font-weight: 600 !important;
+  }
+
+  .side-nav button.active,
+  .side-nav button:hover {
+    background: #fff !important;
+    color: #183b74 !important;
+  }
+
+  .side-history {
+    height: 300px !important;
+    overflow: hidden !important;
+    gap: 0 !important;
+  }
+
+  .side-history::before {
+    content: none !important;
+  }
+
+  .side-group-label {
+    display: block !important;
+    width: 153px !important;
+    margin: 8px 0 2px !important;
+    padding-left: 7px !important;
+    color: #98a3b4 !important;
+    font-size: 10px !important;
+    line-height: 16px !important;
+    font-weight: 500 !important;
+  }
+
+  .side-history button {
+    position: relative !important;
+    width: 153px !important;
+    height: 23px !important;
+    min-height: 23px !important;
+    padding: 0 21px 0 20px !important;
+    border-radius: 3px !important;
+    color: #263445 !important;
+    overflow: hidden !important;
+  }
+
+  .side-history button.current,
+  .side-history button:hover {
+    background: #eef3fb !important;
+  }
+
+  .conversation-mark {
+    position: absolute !important;
+    left: 7px !important;
+    top: 6px !important;
+    width: 10px !important;
+    height: 10px !important;
+    border-radius: 2px !important;
+    background: #4f8cff !important;
+  }
+
+  .conversation-mark.badchild {
+    background: #ff6b6b !important;
+  }
+
+  .side-history button strong {
+    width: 112px !important;
+    color: inherit !important;
+    font-size: 10px !important;
+    line-height: 23px !important;
+    font-weight: 500 !important;
+  }
+
+  .conversation-date,
+  .side-history button small {
+    display: none !important;
+  }
+
+  .conversation-actions {
+    top: 5px !important;
+    right: 2px !important;
+    width: 38px !important;
+    height: 14px !important;
+    background: linear-gradient(90deg, rgba(238, 243, 251, 0), #eef3fb 26%) !important;
+  }
+
+  .conversation-actions i,
+  .conversation-actions svg {
+    width: 11px !important;
+    height: 11px !important;
+  }
+
+  .all-history {
+    width: 153px !important;
+    height: 23px !important;
+    min-height: 23px !important;
+    margin-top: 6px !important;
+    padding: 0 7px !important;
+    color: #5f6b7d !important;
+    font-size: 10px !important;
+    line-height: 23px !important;
+  }
+
+  .agent-shortcuts {
+    left: 10px !important;
+    right: 10px !important;
+    bottom: 48px !important;
+    display: block !important;
+  }
+
+  .agent-shortcuts button {
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: #46566c !important;
+    font-size: 10px !important;
+    line-height: 18px !important;
+  }
+
+  .workspace,
+  .workspace.has-citation {
+    width: 517px !important;
+    min-width: 517px !important;
+    margin: 0 !important;
+    border: 0 !important;
+    background: #fff !important;
+    overflow: hidden !important;
+  }
+
+  .view-home .home-stage {
+    width: 517px !important;
+    min-width: 517px !important;
+    padding: 0 !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    overflow: hidden !important;
+  }
+
+  .view-home .home-agent-switcher {
+    width: 93px !important;
+    height: 24px !important;
+    margin-top: 128px !important;
+    padding: 2px !important;
+    border-radius: 999px !important;
+    background: #f0f2f5 !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+  }
+
+  .view-home .home-agent-switcher::after {
+    right: -32px !important;
+    top: -4px !important;
+    width: 30px !important;
+    height: 30px !important;
+    border: 2px solid #fff !important;
+    background-image: url("./assets/huaxi-badchild.jpg") !important;
+  }
+
+  .view-home .home-agent-switcher button {
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 20px !important;
+    min-height: 20px !important;
+    padding: 0 4px !important;
+    gap: 2px !important;
+    color: #8c96a5 !important;
+    font-size: 8px !important;
+    line-height: 20px !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+  }
+
+  .view-home .home-agent-switcher button.active {
+    background: #fff !important;
+    color: #234066 !important;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12) !important;
+  }
+
+  .view-home .home-agent-switcher .robot-face.small,
+  .view-home .home-agent-switcher button.active .robot-face.small {
+    width: 14px !important;
+    height: 14px !important;
+    flex-basis: 14px !important;
+  }
+
+  .view-home .assistant-line {
+    width: 470px !important;
+    min-width: 470px !important;
+    max-width: 470px !important;
+    margin: 18px 0 16px !important;
+    color: #111827 !important;
+    font-size: 12px !important;
+    line-height: 18px !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+  }
+
+  .view-home .prompt-box:not(.compact) {
+    width: 463px !important;
+    min-width: 463px !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    padding: 10px 12px 8px !important;
+    border: 1px solid #dfe5ef !important;
+    border-radius: 4px !important;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08) !important;
+  }
+
+  .view-home .prompt-box:not(.compact) .prompt-line {
+    min-height: 24px !important;
+  }
+
+  .view-home .prompt-box:not(.compact) .agent-pill {
+    display: none !important;
+  }
+
+  .view-home .prompt-box:not(.compact) .prompt-input {
+    height: 22px !important;
+    min-height: 22px !important;
+    font-size: 11px !important;
+    line-height: 18px !important;
+  }
+
+  .view-home .prompt-box:not(.compact) .prompt-input::placeholder {
+    color: #aeb7c4 !important;
+  }
+
+  .view-home .prompt-box:not(.compact) .prompt-tools {
+    gap: 6px !important;
+    min-height: 24px !important;
+    padding-right: 36px !important;
+  }
+
+  .view-home .prompt-box:not(.compact) .icon-chip,
+  .view-home .prompt-box:not(.compact) .tool-chip {
+    height: 22px !important;
+    min-height: 22px !important;
+    padding: 0 8px !important;
+    border: 1px solid #dfe5ef !important;
+    border-radius: 3px !important;
+    background: #fff !important;
+    color: #405064 !important;
+    font-size: 10px !important;
+    line-height: 20px !important;
+    font-weight: 500 !important;
+  }
+
+  .view-home .prompt-box:not(.compact) .icon-chip {
+    width: 22px !important;
+    padding: 0 !important;
+  }
+
+  .view-home .prompt-box:not(.compact) .tool-chip svg {
+    width: 11px !important;
+    height: 11px !important;
+  }
+
+  .view-home .prompt-box:not(.compact) .send-circle {
+    width: 24px !important;
+    height: 24px !important;
+    right: 11px !important;
+    bottom: 13px !important;
+    background: #8fa0ba !important;
+  }
+
+  .view-home .prompt-box:not(.compact) .send-circle svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  .view-home .suggestion-area:not(.badchild) {
+    width: 463px !important;
+    min-width: 463px !important;
+    max-width: 463px !important;
+    margin-top: 12px !important;
+    gap: 7px !important;
+    align-items: flex-start !important;
+  }
+
+  .view-home .suggestion-area:not(.badchild) button {
+    width: max-content !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    min-width: 182px !important;
+    max-width: 318px !important;
+    padding: 0 12px 0 31px !important;
+    border: 1px solid #e1e6ef !important;
+    border-radius: 3px !important;
+    background: #fff !important;
+    color: #223044 !important;
+    font-size: 10px !important;
+    line-height: 26px !important;
+    font-weight: 500 !important;
+  }
+
+  .view-home .suggestion-area:not(.badchild) button:nth-child(3) {
+    min-width: 318px !important;
+    background: #eaf2ff !important;
+    color: #163e78 !important;
+  }
+
+  .view-home .suggestion-area:not(.badchild) button::before {
+    left: 10px !important;
+    width: 14px !important;
+    height: 14px !important;
+    font-size: 8px !important;
+  }
+
+  .view-home .suggestion-area.badchild,
+  .view-home .suggestion-area.badchild .report-suggestions,
+  .view-home .prompt-box.agent-badchild:not(.compact),
+  .view-home .agent-badchild + .suggestion-area {
+    width: 463px !important;
+    min-width: 463px !important;
+    max-width: 463px !important;
+  }
+
+  .knowledge-page,
+  .kb-detail-page {
+    width: 517px !important;
+    max-width: 517px !important;
+    min-height: 707px !important;
+    max-height: 707px !important;
+    padding: 42px 29px 40px 29px !important;
+    overflow: hidden !important;
+  }
+
+  .knowledge-toolbar {
+    width: 459px !important;
+    height: 30px !important;
+    grid-template-columns: 50px 214px 112px 65px !important;
+    gap: 6px !important;
+    margin: 0 0 16px !important;
+  }
+
+  .knowledge-toolbar h1 {
+    font-size: 16px !important;
+    line-height: 30px !important;
+  }
+
+  .knowledge-toolbar .table-search {
+    width: 214px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 8px !important;
+  }
+
+  .knowledge-toolbar .table-search input {
+    font-size: 11px !important;
+  }
+
+  .knowledge-toolbar .sort-select {
+    width: 112px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 7px !important;
+    font-size: 11px !important;
+  }
+
+  .knowledge-toolbar .muted-primary {
+    width: 65px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    font-size: 11px !important;
+  }
+
+  .kb-grid-real {
+    width: 459px !important;
+    grid-template-columns: repeat(2, 224px) !important;
+    gap: 10px !important;
+  }
+
+  .kb-card-real {
+    width: 224px !important;
+    height: 91px !important;
+    padding: 11px 30px 10px 11px !important;
+  }
+
+  .kb-card-real h2 {
+    margin-bottom: 5px !important;
+    font-size: 11px !important;
+    line-height: 16px !important;
+  }
+
+  .kb-card-real p {
+    font-size: 10px !important;
+    line-height: 14px !important;
+  }
+
+  .kb-card-real footer {
+    left: 11px !important;
+    right: 9px !important;
+    bottom: 7px !important;
+    gap: 7px !important;
+    font-size: 10px !important;
+  }
+
+  .kb-card-real .kb-action-menu {
+    right: -18px !important;
+    top: 34px !important;
+  }
+
+  .knowledge-page .pagination-real,
+  .kb-detail-page .pagination-real {
+    right: 28px !important;
+    bottom: 20px !important;
+    gap: 8px !important;
+    font-size: 11px !important;
+  }
+
+  .kb-detail-page .detail-top,
+  .kb-detail-page .file-table,
+  .kb-detail-page .detail-actions {
+    width: 459px !important;
+  }
+}

@@ -685,6 +685,17 @@ function AppSidebar({
   const adminMode = view === 'admin';
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
+  const pinnedConversations = conversations.filter((item) => item.pinned);
+  const regularConversations = conversations.filter((item) => !item.pinned);
+  const conversationGroups = search.trim()
+    ? [{ label: '搜索结果', items: conversations }]
+    : [
+        { label: '置顶', items: pinnedConversations },
+        { label: '昨天', items: regularConversations.slice(0, 2) },
+        { label: '前7天', items: regularConversations.slice(2, 3) },
+        { label: '过去30天', items: regularConversations.slice(3, 4) },
+        { label: '更早', items: regularConversations.slice(4) }
+      ].filter((group) => group.items.length);
 
   const saveEditing = () => {
     if (!editingId) return;
@@ -754,62 +765,66 @@ function AppSidebar({
       {!adminMode && (
         <>
           <div className="side-history">
-            {conversations.map((item) => (
-              <button
-                key={item.id}
-                className={item.id === activeConversationId ? 'current' : ''}
-                onClick={() => {
-                  setActiveConversationId(item.id);
-                  setAgent(item.agent);
-                  openView('chat');
-                }}
-              >
-                <span className="conversation-date">{item.date}</span>
-                {editingId === item.id ? (
-                  <input
-                    className="conversation-edit"
-                    value={editingTitle}
-                    autoFocus
-                    onClick={(event) => event.stopPropagation()}
-                    onChange={(event) => setEditingTitle(event.target.value.slice(0, 20))}
-                    onBlur={saveEditing}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter') saveEditing();
-                      if (event.key === 'Escape') setEditingId(null);
-                    }}
-                  />
-                ) : (
-                  <strong>{item.pinned ? '置顶 · ' : ''}{item.title}</strong>
-                )}
-                <small>{item.summary}</small>
-                <span className="conversation-actions" aria-hidden="true">
-                  <i
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setEditingId(item.id);
-                      setEditingTitle(item.title.replace(/^置顶 · /, ''));
+            {conversationGroups.map((group) => (
+              <React.Fragment key={group.label}>
+                <span className="side-group-label">{group.label}</span>
+                {group.items.map((item) => (
+                  <button
+                    key={item.id}
+                    className={item.id === activeConversationId ? 'current' : ''}
+                    onClick={() => {
+                      setActiveConversationId(item.id);
+                      setAgent(item.agent);
+                      openView('chat');
                     }}
                   >
-                    <Edit3 size={16} />
-                  </i>
-                  <i
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      togglePinConversation(item.id);
-                    }}
-                  >
-                    <Circle size={16} />
-                  </i>
-                  <i
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      deleteConversation(item.id);
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </i>
-                </span>
-              </button>
+                    <span className={`conversation-mark ${item.agent}`} aria-hidden="true" />
+                    {editingId === item.id ? (
+                      <input
+                        className="conversation-edit"
+                        value={editingTitle}
+                        autoFocus
+                        onClick={(event) => event.stopPropagation()}
+                        onChange={(event) => setEditingTitle(event.target.value.slice(0, 20))}
+                        onBlur={saveEditing}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter') saveEditing();
+                          if (event.key === 'Escape') setEditingId(null);
+                        }}
+                      />
+                    ) : (
+                      <strong>{item.title}</strong>
+                    )}
+                    <span className="conversation-actions" aria-hidden="true">
+                      <i
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setEditingId(item.id);
+                          setEditingTitle(item.title);
+                        }}
+                      >
+                        <Edit3 size={16} />
+                      </i>
+                      <i
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          togglePinConversation(item.id);
+                        }}
+                      >
+                        <Circle size={16} />
+                      </i>
+                      <i
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          deleteConversation(item.id);
+                        }}
+                      >
+                        <Trash2 size={16} />
+                      </i>
+                    </span>
+                  </button>
+                ))}
+              </React.Fragment>
             ))}
             {!conversations.length && <div className="side-empty">未找到匹配的对话</div>}
           </div>
