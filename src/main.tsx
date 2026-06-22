@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
+const secretaryAvatarUrl = new URL('./assets/huaxi-secretary.jpg', import.meta.url).href;
+
 type IconProps = { size?: number; className?: string };
 
 const iconStroke = { fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' } as const;
@@ -318,7 +320,7 @@ function HomeView({ agent, setAgent, setModal }: { agent: Agent; setAgent: (agen
       </div>
       <p className="assistant-line">
         {agent === 'secretary'
-          ? '你好,我是华熙小秘书，我严格控制输出内容，基于已知事实作答'
+          ? '你好,我是华熙小秘书,我严格控制输出内容，基于已知事实作答'
           : '我是华熙坏孩子，我能够对开放性问题进行创新探索'}
       </p>
       <PromptBox agent={agent} setAgent={setAgent} setModal={setModal} />
@@ -344,7 +346,7 @@ function PromptBox({
         <AgentPill agent={agent} setAgent={setAgent} />
         <span className="placeholder">
           {agent === 'secretary'
-            ? '用自然语言提问，AI将理解您的意图，并从公司内部研发报告、实验数据中找到最相关的答案。'
+            ? '输入您的问题，小秘书将为您找到最相关的答案'
             : '输入一个开放性问题，AI将连接不同领域的知识图谱,生成技术综述并启发创新方向。'}
         </span>
       </div>
@@ -1023,15 +1025,7 @@ function ModalFooter({ close, confirm, muted }: { close: () => void; confirm: st
 
 function RobotFace({ small, micro }: { small?: boolean; micro?: boolean }) {
   return (
-    <div className={`robot-face ${small ? 'small' : ''} ${micro ? 'micro' : ''}`} aria-hidden="true">
-      <span className="ear left" />
-      <span className="ear right" />
-      <span className="visor">
-        <i />
-        <i />
-      </span>
-      <span className="mouth" />
-    </div>
+    <img className={`robot-face ${small ? 'small' : ''} ${micro ? 'micro' : ''}`} src={secretaryAvatarUrl} alt="" aria-hidden="true" />
   );
 }
 
