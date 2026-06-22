@@ -140,20 +140,14 @@ function App() {
     setMobileMenuOpen(false);
   };
 
-  const startAgent = (next: Agent) => {
-    setAgent(next);
-    setView('home');
-  };
-
   return (
     <div className="prototype-shell">
+      <WindowChrome />
       <FeishuRail />
       <AppSidebar
         view={view}
-        agent={agent}
         conversations={filteredConversations}
         openView={openView}
-        startAgent={startAgent}
         mobileMenuOpen={mobileMenuOpen}
         closeMobileMenu={() => setMobileMenuOpen(false)}
       />
@@ -184,6 +178,30 @@ function App() {
   );
 }
 
+function WindowChrome() {
+  return (
+    <div className="window-chrome" aria-hidden="true">
+      <div className="mac-dots">
+        <i />
+        <i />
+        <i />
+      </div>
+      <div className="chrome-nav">
+        <ChevronLeft size={24} />
+        <ChevronRight size={24} />
+        <RotateCw size={21} />
+      </div>
+      <div className="chrome-actions">
+        <MessageCircle size={18} />
+        <Circle size={18} />
+        <Square size={18} />
+        <MoreHorizontal size={21} />
+        <X size={24} />
+      </div>
+    </div>
+  );
+}
+
 function FeishuRail() {
   const rail = [
     { label: '搜索', icon: <Search size={23} /> },
@@ -199,11 +217,6 @@ function FeishuRail() {
 
   return (
     <aside className="feishu-rail" aria-label="飞书导航">
-      <div className="mac-dots">
-        <i />
-        <i />
-        <i />
-      </div>
       <div className="user-avatar" />
       {rail.map((item) => (
         <button key={item.label} className={`feishu-item ${item.label === '工作台' ? 'active' : ''}`} aria-label={item.label}>
@@ -217,62 +230,79 @@ function FeishuRail() {
 
 function AppSidebar({
   view,
-  agent,
   conversations,
   openView,
-  startAgent,
   mobileMenuOpen,
   closeMobileMenu
 }: {
   view: View;
-  agent: Agent;
   conversations: string[];
   openView: (view: View) => void;
-  startAgent: (agent: Agent) => void;
   mobileMenuOpen: boolean;
   closeMobileMenu: () => void;
 }) {
+  const adminMode = view === 'admin';
+
   return (
-    <aside className={`app-sidebar ${mobileMenuOpen ? 'open' : ''}`}>
+    <aside className={`app-sidebar ${mobileMenuOpen ? 'open' : ''} ${adminMode ? 'admin-sidebar' : ''}`}>
       <div className="app-title">
         <RobotFace small />
-        <strong>华熙AI知识助手</strong>
+        <strong>{adminMode ? '华熙AI知识助手管理端' : '华熙AI知识助手'}</strong>
         <button aria-label="关闭移动菜单" className="sidebar-close" onClick={closeMobileMenu}>
           <X size={18} />
         </button>
         <Menu size={20} className="desktop-collapse" />
       </div>
       <nav className="side-nav" aria-label="AI助手导航">
-        <button className={view === 'home' ? 'active' : ''} onClick={() => openView('home')}>
-          <MessageCircle size={16} />
-          新建会话
-        </button>
-        <button className={view === 'tasks' ? 'active' : ''} onClick={() => openView('tasks')}>
-          <Clock3 size={17} />
-          定时任务
-        </button>
-        <button className={view === 'knowledge' || view === 'kbDetail' ? 'active' : ''} onClick={() => openView('knowledge')}>
-          <BookOpen size={16} />
-          知识库
-        </button>
-        <button className={view === 'history' ? 'active' : ''} onClick={() => openView('history')}>
-          <Clock3 size={16} />
-          历史会话
-        </button>
+        {adminMode ? (
+          <>
+            <button className="active" onClick={() => openView('admin')}>
+              <MessageCircle size={16} />
+              数据监控
+            </button>
+            <button onClick={() => openView('admin')}>
+              <MessageCircle size={16} />
+              模板配置
+            </button>
+          </>
+        ) : (
+          <>
+            <button className={view === 'home' ? 'active' : ''} onClick={() => openView('home')}>
+              <MessageCircle size={16} />
+              新建会话
+            </button>
+            <button className={view === 'tasks' ? 'active' : ''} onClick={() => openView('tasks')}>
+              <Clock3 size={17} />
+              定时任务
+            </button>
+            <button className={view === 'knowledge' || view === 'kbDetail' ? 'active' : ''} onClick={() => openView('knowledge')}>
+              <BookOpen size={16} />
+              知识库
+            </button>
+            <button className={view === 'history' ? 'active' : ''} onClick={() => openView('history')}>
+              <Clock3 size={16} />
+              历史会话
+            </button>
+          </>
+        )}
       </nav>
-      <div className="side-history">
-        {conversations.map((item) => (
-          <button key={item} onClick={() => openView('chat')}>
-            {item}
+      {!adminMode && (
+        <>
+          <div className="side-history">
+            {conversations.map((item) => (
+              <button key={item} onClick={() => openView('chat')}>
+                {item}
+              </button>
+            ))}
+          </div>
+          <button className="all-history" onClick={() => openView('history')}>
+            全部会话 <span>&gt;&gt;</span>
           </button>
-        ))}
-      </div>
-      <button className="all-history" onClick={() => openView('history')}>
-        全部会话 <span>&gt;&gt;</span>
-      </button>
-      <div className="agent-shortcuts">
-        <button onClick={() => openView('admin')}>管理端</button>
-      </div>
+          <div className="agent-shortcuts">
+            <button onClick={() => openView('admin')}>管理端</button>
+          </div>
+        </>
+      )}
     </aside>
   );
 }
@@ -283,7 +313,7 @@ function HomeView({ agent, setAgent, setModal }: { agent: Agent; setAgent: (agen
       <RobotFace />
       <p className="assistant-line">
         {agent === 'secretary'
-          ? '你好,我是华熙小秘书,我擅长从公司内部知识库中最快找到答案'
+          ? '我是华熙小秘书，我能够对xxx数据进行xxx问询'
           : '我是华熙坏孩子，我能够对开放性问题进行创新探索'}
       </p>
       <PromptBox agent={agent} setAgent={setAgent} setModal={setModal} />
@@ -304,7 +334,7 @@ function PromptBox({
   compact?: boolean;
 }) {
   return (
-    <div className={`prompt-box ${compact ? 'compact' : ''}`}>
+    <div className={`prompt-box agent-${agent} ${compact ? 'compact' : ''}`}>
       <div className="prompt-line">
         <AgentPill agent={agent} setAgent={setAgent} />
         <span className="placeholder">
