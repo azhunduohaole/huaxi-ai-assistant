@@ -936,13 +936,18 @@ function TimelineGroup({ label, repeat }: { label: string; repeat?: boolean }) {
 function TasksView({ setModal }: { setModal: (modal: Modal) => void }) {
   return (
     <section className="task-page">
+      <h1 className="task-page-title">定时任务</h1>
       <div className="task-hero">
         <RobotFace />
         <p>选择关注领域、时间范围并创建定时任务，AI将自动汇总最新的技术、法规和竞品动态。</p>
         <div className="task-create-bar">
-          <input placeholder="在此描述您的关注领域或关注要点" />
+          <input className="task-title-input" placeholder="任务标题（选填）" />
+          <textarea className="task-desc-input" placeholder="在此描述您的关注领域或要点（必填）" />
           <button className="select-button frequency-trigger" onClick={() => setModal('frequencyMenu')} aria-haspopup="menu">
             每天 <ChevronDown size={16} />
+          </button>
+          <button className="select-button time-trigger" onClick={() => setModal('taskConfig')} aria-haspopup="dialog">
+            9:00 <ChevronDown size={16} />
           </button>
           <button className="config-button" onClick={() => setModal('taskConfig')} aria-label="更多配置">
             <Filter size={21} />

@@ -9580,3 +9580,384 @@ th {
     min-height: 63px !important;
   }
 }
+
+/* MasterGo delivery lock: final desktop visual alignment pass. */
+@media (min-width: 560px) {
+  .app-sidebar {
+    padding-top: 73px !important;
+    background: #f6f8fb !important;
+  }
+
+  .side-nav {
+    gap: 6px !important;
+    margin: 0 0 16px !important;
+  }
+
+  .side-nav button {
+    width: 153px !important;
+    height: 33px !important;
+    min-height: 33px !important;
+    padding: 0 10px !important;
+    border-radius: 4px !important;
+    color: #2f3a4a !important;
+    background: transparent !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    transition: background 160ms ease, color 160ms ease !important;
+  }
+
+  .side-nav button.active,
+  .side-nav button:hover {
+    color: #1f2937 !important;
+    background: #fff !important;
+  }
+
+  .side-history {
+    gap: 0 !important;
+    margin-top: 0 !important;
+    padding-left: 0 !important;
+  }
+
+  .side-history::before {
+    margin: 0 0 5px 9px !important;
+    color: #98a3b4 !important;
+    font-size: 12px !important;
+    line-height: 18px !important;
+  }
+
+  .side-history button {
+    width: 153px !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    padding: 0 8px !important;
+    border-radius: 4px !important;
+    background: transparent !important;
+    color: #405064 !important;
+  }
+
+  .side-history button.current,
+  .side-history button:hover {
+    background: #eef3fb !important;
+  }
+
+  .side-history button strong {
+    width: 108px !important;
+    color: inherit !important;
+    font-size: 12px !important;
+    line-height: 28px !important;
+    font-weight: 600 !important;
+  }
+
+  .conversation-actions {
+    display: none !important;
+    right: 5px !important;
+    top: 6px !important;
+    width: 42px !important;
+    gap: 4px !important;
+    color: #7b8494 !important;
+    background: linear-gradient(90deg, rgba(238, 243, 251, 0), #eef3fb 22%) !important;
+  }
+
+  .side-history button:hover .conversation-actions,
+  .side-history button.current .conversation-actions {
+    display: flex !important;
+  }
+
+  .conversation-actions svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  .all-history {
+    width: 153px !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    margin-top: 6px !important;
+    padding: 0 8px !important;
+    color: #667085 !important;
+    font-size: 12px !important;
+  }
+
+  .view-home .home-stage {
+    justify-content: flex-start !important;
+  }
+
+  .view-home .home-agent-switcher {
+    width: 148px !important;
+    height: 31px !important;
+    margin-top: 124px !important;
+    padding: 2px !important;
+    background: #f0f0f0 !important;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08) !important;
+  }
+
+  .view-home .home-agent-switcher::after {
+    right: -38px !important;
+    top: -5px !important;
+    width: 32px !important;
+    height: 32px !important;
+    border: 2px solid #fff !important;
+    box-shadow: 0 5px 12px rgba(15, 23, 42, 0.14) !important;
+  }
+
+  .view-home .home-agent-switcher button {
+    width: 72px !important;
+    min-width: 72px !important;
+    height: 27px !important;
+    min-height: 27px !important;
+    padding: 0 8px 0 5px !important;
+    color: #8f98a8 !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+  }
+
+  .view-home .home-agent-switcher button.active {
+    color: #1f2937 !important;
+    background: #fff !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12) !important;
+  }
+
+  .view-home .home-agent-switcher .robot-face.small,
+  .view-home .home-agent-switcher button.active .robot-face.small {
+    width: 20px !important;
+    height: 20px !important;
+    flex-basis: 20px !important;
+  }
+
+  .view-home .assistant-line {
+    margin: 25px 0 18px !important;
+    font-size: 15px !important;
+    line-height: 22px !important;
+    font-weight: 800 !important;
+  }
+
+  .view-home .prompt-box:not(.compact) {
+    height: 78px !important;
+    min-height: 78px !important;
+    padding: 15px 14px 8px !important;
+    border: 1px solid #dfe5ef !important;
+    border-radius: 4px !important;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.07) !important;
+  }
+
+  .view-home .prompt-box:not(.compact) .prompt-input {
+    height: 20px !important;
+    min-height: 20px !important;
+    color: #1f2937 !important;
+    font-size: 13px !important;
+    line-height: 20px !important;
+  }
+
+  .view-home .prompt-box:not(.compact) .prompt-tools {
+    gap: 7px !important;
+    min-height: 28px !important;
+    padding-right: 39px !important;
+  }
+
+  .view-home .prompt-box:not(.compact) .icon-chip,
+  .view-home .prompt-box:not(.compact) .tool-chip {
+    height: 28px !important;
+    min-height: 28px !important;
+    border-radius: 3px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+  }
+
+  .view-home .prompt-box:not(.compact) .icon-chip {
+    width: 28px !important;
+  }
+
+  .view-home .prompt-box:not(.compact) .send-circle {
+    width: 34px !important;
+    height: 34px !important;
+    right: 10px !important;
+    bottom: 13px !important;
+    background: #8fa0ba !important;
+  }
+
+  .view-home .suggestion-area:not(.badchild) {
+    width: 744px !important;
+    max-width: 744px !important;
+    min-width: 744px !important;
+    margin-top: 13px !important;
+    gap: 7px !important;
+    align-items: center !important;
+  }
+
+  .view-home .suggestion-area:not(.badchild) > span {
+    display: none !important;
+  }
+
+  .view-home .suggestion-area:not(.badchild) button {
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 13px !important;
+    border: 1px solid #e2e7f0 !important;
+    border-radius: 4px !important;
+    color: #31405a !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    box-shadow: none !important;
+  }
+
+  .view-home .suggestion-area:not(.badchild) button:nth-child(3) {
+    background: #eaf2ff !important;
+  }
+
+  .task-page {
+    width: 997px !important;
+    max-width: 997px !important;
+    min-height: 707px !important;
+    padding: 0 32px 48px !important;
+    background: #fff !important;
+    overflow: auto !important;
+  }
+
+  .task-page-title {
+    margin: 44px 0 0 !important;
+    color: #111827 !important;
+    font-size: 18px !important;
+    line-height: 28px !important;
+    font-weight: 800 !important;
+  }
+
+  .task-hero {
+    position: relative !important;
+    width: 840px !important;
+    min-height: 300px !important;
+    height: auto !important;
+    margin: 25px auto 18px !important;
+    padding: 0 !important;
+    display: grid !important;
+    justify-items: center !important;
+    gap: 14px !important;
+    border: 0 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+
+  .task-hero .robot-face {
+    width: 58px !important;
+    height: 54px !important;
+    box-shadow: 0 8px 18px rgba(34, 68, 120, 0.12) !important;
+  }
+
+  .task-hero p {
+    width: 820px !important;
+    margin: 0 !important;
+    color: #111827 !important;
+    font-size: 18px !important;
+    line-height: 28px !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+  }
+
+  .task-create-bar {
+    width: 840px !important;
+    display: grid !important;
+    grid-template-columns: 86px 122px 40px 1fr !important;
+    grid-template-areas:
+      "title title title title"
+      "desc desc desc desc"
+      "frequency time config publish" !important;
+    gap: 14px 10px !important;
+    align-items: center !important;
+    justify-content: start !important;
+    margin-top: 2px !important;
+  }
+
+  .task-create-bar .task-title-input {
+    grid-area: title !important;
+    width: 840px !important;
+    height: 34px !important;
+    padding: 0 12px !important;
+    border: 1px solid #d9dee8 !important;
+    border-radius: 4px !important;
+    color: #1f2937 !important;
+    font-size: 13px !important;
+  }
+
+  .task-create-bar .task-desc-input {
+    grid-area: desc !important;
+    width: 840px !important;
+    height: 68px !important;
+    min-height: 68px !important;
+    padding: 11px 12px !important;
+    border: 1px solid #d9dee8 !important;
+    border-radius: 4px !important;
+    color: #1f2937 !important;
+    font-size: 13px !important;
+    line-height: 20px !important;
+    resize: none !important;
+  }
+
+  .task-create-bar .frequency-trigger {
+    grid-area: frequency !important;
+  }
+
+  .task-create-bar .time-trigger {
+    grid-area: time !important;
+  }
+
+  .task-create-bar .config-button {
+    grid-area: config !important;
+  }
+
+  .task-create-bar .primary-action {
+    grid-area: publish !important;
+    justify-self: end !important;
+  }
+
+  .task-create-bar .select-button {
+    width: 86px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    justify-content: space-between !important;
+    padding: 0 10px !important;
+    border: 1px solid #d9dee8 !important;
+    border-radius: 4px !important;
+    background: #fff !important;
+    color: #374151 !important;
+    font-size: 13px !important;
+  }
+
+  .task-create-bar .time-trigger {
+    width: 122px !important;
+  }
+
+  .task-create-bar .config-button {
+    width: 40px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    border: 1px solid #d9dee8 !important;
+    border-radius: 4px !important;
+    background: #fff !important;
+    color: #667085 !important;
+  }
+
+  .task-create-bar .primary-action {
+    width: 96px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    border-radius: 4px !important;
+    background: #0f3f8f !important;
+    color: #fff !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+  }
+
+  .task-list {
+    width: 850px !important;
+    margin: 14px auto 0 !important;
+    gap: 10px !important;
+  }
+
+  .task-card {
+    width: 850px !important;
+    min-height: 104px !important;
+    padding: 14px 18px !important;
+    border: 1px solid #e1e5ed !important;
+    border-radius: 4px !important;
+    background: #fff !important;
+  }
+}
