@@ -3508,6 +3508,10 @@ th {
     background: #e7edf7;
   }
 
+  .prototype-shell.with-citation {
+    grid-template-columns: 72px 308px minmax(0, 1fr) 520px;
+  }
+
   .feishu-rail {
     padding: 14px 10px;
     background: linear-gradient(180deg, #edf7ff 0%, #e4effd 100%);
@@ -3663,6 +3667,23 @@ th {
     box-shadow: inset 1px 0 0 #edf1f7;
   }
 
+  .citation-drawer {
+    grid-column: 4;
+    grid-row: 1;
+    align-self: stretch;
+    width: 520px;
+    height: calc(100vh - 40px);
+    margin: 0;
+    padding: 26px 32px;
+    border-left: 1px solid #e5e9f1;
+    background: #fff;
+    overflow: auto;
+  }
+
+  .drawer-title {
+    display: flex;
+  }
+
   .workspace::before {
     height: 40px;
     color: #222;
@@ -3786,12 +3807,20 @@ th {
     left: calc(72px + 308px + 50%);
   }
 
+  .prototype-shell.with-citation .fixed-composer {
+    left: calc(72px + 308px + (100vw - 72px - 308px - 520px) / 2);
+  }
+
   .prompt-box.compact {
     width: min(840px, calc(100vw - 560px));
     min-height: 116px;
     border-color: #3370ff;
     border-radius: 16px;
     padding: 12px 14px;
+  }
+
+  .prototype-shell.with-citation .prompt-box.compact {
+    width: min(500px, calc(100vw - 940px));
   }
 
   .prompt-box.compact .placeholder {
@@ -3968,9 +3997,48 @@ th {
   }
 
   .history-row {
-    height: 92px;
+    min-height: 104px;
     border-color: #e1e5ed;
     background: #fbfdff;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 20px;
+    transition: border-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .history-row:hover {
+    border-color: #bcd3ff;
+    box-shadow: 0 8px 20px rgba(51, 112, 255, 0.08);
+  }
+
+  .history-row footer {
+    min-width: 360px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 18px;
+    color: #9aa1ad;
+  }
+
+  .history-row footer small {
+    font-size: 14px;
+  }
+
+  .history-row footer span {
+    display: inline-flex;
+    gap: 10px;
+  }
+
+  .history-row footer button {
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 6px;
+    background: #f2f5fa;
+    color: #718097;
+    display: grid;
+    place-items: center;
   }
 
   .admin-page {
@@ -4110,6 +4178,32 @@ th {
     margin: 10px 4px 0;
     color: #a3aab6;
     font-size: 12px;
+  }
+
+  .prototype-shell.with-citation .table-box {
+    overflow-x: auto;
+  }
+
+  .prototype-shell.with-citation .table-box table {
+    min-width: 760px;
+  }
+
+  .prototype-shell.with-citation .search-strip {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 900px) {
+  .table-box table {
+    min-width: 720px;
+  }
+
+  .file-table {
+    min-width: 760px;
+  }
+
+  .kb-detail-page {
+    overflow-x: auto;
   }
 }
 

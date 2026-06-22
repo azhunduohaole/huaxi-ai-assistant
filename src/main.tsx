@@ -166,7 +166,7 @@ function App() {
   };
 
   return (
-    <div className="prototype-shell">
+    <div className={`prototype-shell ${citationOpen && view === 'chat' ? 'with-citation' : ''}`}>
       <WindowChrome />
       <FeishuRail />
       <AppSidebar
@@ -633,8 +633,21 @@ function TimelineGroup({ label, repeat }: { label: string; repeat?: boolean }) {
       <span>{label}</span>
       {rows.map((row, index) => (
         <article className="history-row" key={`${label}-${index}`}>
-          <strong>{row}</strong>
-          <p>正文</p>
+          <div>
+            <strong>{row}</strong>
+            <p>正文</p>
+          </div>
+          <footer>
+            <small>小秘书 ｜ 知识检索 ｜ 2026-03-24 14:37</small>
+            <span>
+              <button aria-label="继续对话">
+                <MessageCircle size={17} />
+              </button>
+              <button aria-label="删除会话">
+                <Trash2 size={17} />
+              </button>
+            </span>
+          </footer>
         </article>
       ))}
     </div>
