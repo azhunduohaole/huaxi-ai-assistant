@@ -90,7 +90,7 @@ const Upload = makeIcon(<path d="M12 16V4m0 0-5 5m5-5 5 5M4 20h16" {...iconStrok
 
 type View = 'home' | 'chat' | 'history' | 'tasks' | 'knowledge' | 'kbDetail' | 'admin';
 type Agent = 'secretary' | 'badchild';
-type Modal = null | 'kbPicker' | 'taskConfig' | 'createKb' | 'upload' | 'report' | 'template';
+type Modal = null | 'kbPicker' | 'taskConfig' | 'createKb' | 'upload' | 'report' | 'template' | 'mobileTools' | 'mobileScenes';
 
 const conversations = [
   '对话5-知识检索XXX...',
@@ -160,7 +160,7 @@ function App() {
             <RobotFace small />
             <strong>华熙AI知识助手</strong>
           </div>
-          <button className="mobile-new" aria-label="新建会话" onClick={() => openView('home')}>
+          <button className="mobile-new" aria-label="配置能力" onClick={() => setModal('mobileTools')}>
             <Plus size={22} />
           </button>
         </div>
@@ -173,7 +173,7 @@ function App() {
         {view === 'admin' && <AdminView setModal={setModal} />}
       </main>
       {citationOpen && view === 'chat' && <CitationDrawer onClose={() => setCitationOpen(false)} />}
-      {modal && <ModalLayer type={modal} close={() => setModal(null)} />}
+      {modal && <ModalLayer type={modal} close={() => setModal(null)} setModal={setModal} />}
     </div>
   );
 }
@@ -310,7 +310,12 @@ function AppSidebar({
 function HomeView({ agent, setAgent, setModal }: { agent: Agent; setAgent: (agent: Agent) => void; setModal: (modal: Modal) => void }) {
   return (
     <section className="home-stage">
-      <RobotFace />
+      <div className="home-robot-wrap">
+        <RobotFace />
+        <button className="home-agent-switch" aria-label="切换智能体" onClick={() => setAgent(agent === 'secretary' ? 'badchild' : 'secretary')}>
+          <RotateCw size={26} />
+        </button>
+      </div>
       <p className="assistant-line">
         {agent === 'secretary'
           ? '我是华熙小秘书，我能够对xxx数据进行xxx问询'
@@ -378,7 +383,7 @@ function PromptBox({
             </button>
           </>
         )}
-        <button className="send-circle" aria-label="发送">
+        <button className="send-circle" aria-label="发送" onClick={() => setModal('mobileTools')}>
           <Send size={24} />
         </button>
       </div>
@@ -796,16 +801,67 @@ function CitationDrawer({ onClose }: { onClose: () => void }) {
   );
 }
 
-function ModalLayer({ type, close }: { type: Modal; close: () => void }) {
+function ModalLayer({ type, close, setModal }: { type: Modal; close: () => void; setModal: (modal: Modal) => void }) {
   return (
-    <div className="modal-mask">
+    <div className={`modal-mask ${type === 'mobileTools' || type === 'mobileScenes' ? 'mobile-sheet-mask' : ''}`}>
       {type === 'kbPicker' && <KbPicker close={close} />}
       {type === 'taskConfig' && <TaskConfig close={close} />}
       {type === 'createKb' && <CreateKb close={close} />}
       {type === 'upload' && <UploadModal close={close} />}
       {type === 'report' && <ReportModal close={close} />}
       {type === 'template' && <TemplateModal close={close} />}
+      {type === 'mobileTools' && <MobileToolsSheet close={close} setModal={setModal} />}
+      {type === 'mobileScenes' && <MobileScenesSheet close={close} />}
     </div>
+  );
+}
+
+function MobileToolsSheet({ close, setModal }: { close: () => void; setModal: (modal: Modal) => void }) {
+  return (
+    <section className="mobile-sheet tools-sheet">
+      <div className="sheet-handle" />
+      <button className="sheet-row" onClick={close}>
+        <Bot size={28} />
+        <strong>联网搜索</strong>
+        <span>打开 &gt;</span>
+      </button>
+      <button className="sheet-row" onClick={() => setModal('mobileScenes')}>
+        <Bot size={28} />
+        <strong>知识库</strong>
+        <span>启用 &gt;</span>
+      </button>
+    </section>
+  );
+}
+
+function MobileScenesSheet({ close }: { close: () => void }) {
+  const scenes = [
+    { title: '技术综述', tone: 'yellow' },
+    { title: '方向传播', tone: 'green' },
+    { title: '科学洞察', tone: 'pink' }
+  ];
+
+  return (
+    <section className="mobile-sheet scenes-sheet">
+      <div className="sheet-handle" />
+      <button className="sheet-row scene-head" onClick={close}>
+        <Bot size={28} />
+        <strong>知识库</strong>
+        <span>启用 &gt;</span>
+      </button>
+      <div className="scene-list">
+        <span>场景选择</span>
+        {scenes.map((scene) => (
+          <button key={scene.title} className="scene-mobile-row" onClick={close}>
+            <i className={scene.tone}>
+              <Bot size={26} />
+            </i>
+            <strong>{scene.title}</strong>
+            <small>全面系统梳理技术领域发展脉络与核心要点。</small>
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 
