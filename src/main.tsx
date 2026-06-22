@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
 const secretaryAvatarUrl = new URL('./assets/huaxi-secretary.jpg', import.meta.url).href;
+const badchildAvatarUrl = new URL('./assets/huaxi-badchild.jpg', import.meta.url).href;
 
 type IconProps = { size?: number; className?: string };
 
@@ -143,9 +144,25 @@ function App() {
     [historySearch]
   );
 
+  useEffect(() => {
+    if (!modal) return undefined;
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setModal(null);
+    };
+
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [modal]);
+
   const openView = (next: View) => {
     setView(next);
     setMobileMenuOpen(false);
+  };
+
+  const startChat = () => {
+    setCitationOpen(false);
+    openView('chat');
   };
 
   return (
@@ -165,20 +182,20 @@ function App() {
             <Menu size={22} />
           </button>
           <div className="mobile-brand">
-            <RobotFace small />
+            <RobotFace small agent={agent} />
             <strong>{view === 'chat' ? '会话名称名称' : '华熙AI知识助手'}</strong>
           </div>
           <button className="mobile-new" aria-label="配置能力" onClick={() => setModal('mobileTools')}>
             <Plus size={22} />
           </button>
         </div>
-        {view === 'home' && <HomeView agent={agent} setAgent={setAgent} setModal={setModal} />}
+        {view === 'home' && <HomeView agent={agent} setAgent={setAgent} setModal={setModal} startChat={startChat} />}
         {view === 'chat' && <ChatView agent={agent} setAgent={setAgent} setModal={setModal} setCitationOpen={setCitationOpen} />}
         {view === 'history' && <HistoryView search={historySearch} setSearch={setHistorySearch} />}
         {view === 'tasks' && <TasksView setModal={setModal} />}
         {view === 'knowledge' && <KnowledgeView setView={setView} setModal={setModal} />}
         {view === 'kbDetail' && <KnowledgeDetail setView={setView} setModal={setModal} />}
-        {view === 'admin' && <AdminView setModal={setModal} />}
+        {view === 'admin' && <AdminView setModal={setModal} openView={openView} />}
       </main>
       {citationOpen && view === 'chat' && <CitationDrawer onClose={() => setCitationOpen(false)} />}
       {modal && <ModalLayer type={modal} close={() => setModal(null)} setModal={setModal} />}
@@ -254,7 +271,7 @@ function AppSidebar({
   return (
     <aside className={`app-sidebar ${mobileMenuOpen ? 'open' : ''} ${adminMode ? 'admin-sidebar' : ''}`}>
       <div className="app-title">
-        <RobotFace small />
+        <RobotFace small agent="secretary" />
         <strong>{adminMode ? '华熙AI知识助手管理端' : '华熙AI知识助手'}</strong>
         <button aria-label="关闭移动菜单" className="sidebar-close" onClick={closeMobileMenu}>
           <X size={18} />
@@ -264,6 +281,10 @@ function AppSidebar({
       <nav className="side-nav" aria-label="AI助手导航">
         {adminMode ? (
           <>
+            <button className="admin-return" onClick={() => openView('home')}>
+              <ChevronLeft size={16} />
+              返回用户端
+            </button>
             <button className="active" onClick={() => openView('admin')}>
               <MessageCircle size={16} />
               数据监控
@@ -297,9 +318,10 @@ function AppSidebar({
       {!adminMode && (
         <>
           <div className="side-history">
-            {conversations.map((item) => (
-              <button key={item} onClick={() => openView('chat')}>
-                {item}
+            {conversations.map((item, index) => (
+              <button key={`${item}-${index}`} className={index === 0 ? 'current' : ''} onClick={() => openView('chat')}>
+                <span>{item}</span>
+                <MoreHorizontal size={16} />
               </button>
             ))}
           </div>
@@ -315,22 +337,27 @@ function AppSidebar({
   );
 }
 
-function HomeView({ agent, setAgent, setModal }: { agent: Agent; setAgent: (agent: Agent) => void; setModal: (modal: Modal) => void }) {
+function HomeView({
+  agent,
+  setAgent,
+  setModal,
+  startChat
+}: {
+  agent: Agent;
+  setAgent: (agent: Agent) => void;
+  setModal: (modal: Modal) => void;
+  startChat: () => void;
+}) {
   return (
     <section className="home-stage">
-      <div className="home-robot-wrap">
-        <RobotFace />
-        <button className="home-agent-switch" aria-label="切换智能体" onClick={() => setAgent(agent === 'secretary' ? 'badchild' : 'secretary')}>
-          <RotateCw size={26} />
-        </button>
-      </div>
+      <AgentSwitch agent={agent} setAgent={setAgent} />
       <p className="assistant-line">
         {agent === 'secretary'
           ? '你好,我是华熙小秘书,我严格控制输出内容，基于已知事实作答'
           : '我是华熙坏孩子，我能够对开放性问题进行创新探索'}
       </p>
-      <PromptBox agent={agent} setAgent={setAgent} setModal={setModal} />
-      <SuggestionList agent={agent} />
+      <PromptBox agent={agent} setAgent={setAgent} setModal={setModal} onSend={startChat} />
+      <SuggestionList agent={agent} onSelect={startChat} />
     </section>
   );
 }
@@ -339,11 +366,13 @@ function PromptBox({
   agent,
   setAgent,
   setModal,
+  onSend,
   compact
 }: {
   agent: Agent;
   setAgent: (agent: Agent) => void;
   setModal: (modal: Modal) => void;
+  onSend?: () => void;
   compact?: boolean;
 }) {
   return (
@@ -391,7 +420,7 @@ function PromptBox({
             </button>
           </>
         )}
-        <button className="send-circle" aria-label="发送" onClick={() => setModal('mobileTools')}>
+        <button className="send-circle" aria-label="发送" onClick={onSend}>
           <Send size={24} />
         </button>
       </div>
@@ -402,21 +431,39 @@ function PromptBox({
 function AgentPill({ agent, setAgent }: { agent: Agent; setAgent: (agent: Agent) => void }) {
   return (
     <button className="agent-pill" onClick={() => setAgent(agent === 'secretary' ? 'badchild' : 'secretary')}>
-      <Bot size={15} />
+      <RobotFace micro agent={agent} />
       {agent === 'secretary' ? '小秘书' : '坏孩子'}
       <RotateCw size={14} className="swap" />
     </button>
   );
 }
 
-function SuggestionList({ agent }: { agent: Agent }) {
+function AgentSwitch({ agent, setAgent }: { agent: Agent; setAgent: (agent: Agent) => void }) {
+  const agents: Array<{ key: Agent; label: string }> = [
+    { key: 'secretary', label: '小秘书' },
+    { key: 'badchild', label: '坏孩子' }
+  ];
+
+  return (
+    <div className="home-agent-switcher" role="group" aria-label="切换智能体">
+      {agents.map((item) => (
+        <button key={item.key} className={agent === item.key ? 'active' : ''} onClick={() => setAgent(item.key)}>
+          <RobotFace small agent={item.key} />
+          <span>{item.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function SuggestionList({ agent, onSelect }: { agent: Agent; onSelect: () => void }) {
   if (agent === 'badchild') {
     return (
       <div className="suggestion-area badchild">
         <span>试试这些示例:</span>
         <div className="report-suggestions">
           {[1, 2, 3].map((item) => (
-            <button key={item} className="report-suggestion">
+            <button key={item} className="report-suggestion" onClick={onSelect}>
               <ReportIcon />
               XXX创新探索分析
             </button>
@@ -429,9 +476,9 @@ function SuggestionList({ agent }: { agent: Agent }) {
   return (
     <div className="suggestion-area">
       <span>试试这些示例:</span>
-      <button>华熙在HA领域的最新研究成果</button>
-      <button>生物护理品原料包含的四大业务领域讲解</button>
-      <button>华熙当康、生物科技品牌宣传资料</button>
+      <button onClick={onSelect}>华熙在HA领域的最新研究成果</button>
+      <button onClick={onSelect}>生物护理品原料包含的四大业务领域讲解</button>
+      <button onClick={onSelect}>华熙当康、生物科技品牌宣传资料</button>
     </div>
   );
 }
@@ -465,7 +512,7 @@ function SecretaryAnswer({ setCitationOpen }: { setCitationOpen: (open: boolean)
     <div className="answer-flow">
       <div className="user-bubble">帮我找出麦角硫因稳定性相关数据</div>
       <div className="assistant-row">
-        <RobotFace micro />
+        <RobotFace micro agent="secretary" />
         <div className="answer-main">
           <p className="answer-ask">我来帮您搜索麦角硫因（Ergothioneine）稳定性相关的研究数据。</p>
           <button className="search-strip" onClick={() => setCitationOpen(true)}>
@@ -744,10 +791,16 @@ function KnowledgeDetail({ setView, setModal }: { setView: (view: View) => void;
   );
 }
 
-function AdminView({ setModal }: { setModal: (modal: Modal) => void }) {
+function AdminView({ setModal, openView }: { setModal: (modal: Modal) => void; openView: (view: View) => void }) {
   return (
     <section className="admin-page">
-      <h1>调用额度</h1>
+      <div className="admin-page-head">
+        <h1>调用额度</h1>
+        <button onClick={() => openView('home')}>
+          <ChevronLeft size={16} />
+          返回用户端
+        </button>
+      </div>
       <div className="quota-grid-real">
         {quotaRows.map((item) => (
           <article className="quota-card-real" key={item.title}>
@@ -813,7 +866,12 @@ function CitationDrawer({ onClose }: { onClose: () => void }) {
 
 function ModalLayer({ type, close, setModal }: { type: Modal; close: () => void; setModal: (modal: Modal) => void }) {
   return (
-    <div className={`modal-mask ${type === 'mobileTools' || type === 'mobileScenes' ? 'mobile-sheet-mask' : ''}`}>
+    <div
+      className={`modal-mask ${type === 'mobileTools' || type === 'mobileScenes' ? 'mobile-sheet-mask' : ''} ${type === 'kbPicker' ? 'kb-picker-mask' : ''}`}
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) close();
+      }}
+    >
       {type === 'kbPicker' && <KbPicker close={close} />}
       {type === 'taskConfig' && <TaskConfig close={close} />}
       {type === 'createKb' && <CreateKb close={close} />}
@@ -879,24 +937,34 @@ function KbPicker({ close }: { close: () => void }) {
   return (
     <section className="modal-panel kb-picker-modal">
       <ModalClose close={close} />
-      <h2>选择知识库</h2>
-      <div className="picker-table">
-        <div className="picked-col">
-          <strong>已选知识库（最多2个）</strong>
-          <input defaultValue="11" />
-        </div>
-        <div className="list-col">
-          <strong>知识库列表</strong>
-          <div className="inner-search">
-            <Search size={18} />
-            <input placeholder="输入关键词进行知识库搜索" />
-          </div>
-          <button className="kb-list-item">
-            <BookOpen size={16} />
-            11
+      <div className="kb-picker-head">
+        <h2>选择知识库</h2>
+        <span>最多选择 2 个</span>
+      </div>
+      <div className="kb-selected-row">
+        <button>
+          知识库1
+          <X size={14} />
+        </button>
+        <button>
+          研发资料库
+          <X size={14} />
+        </button>
+      </div>
+      <div className="inner-search">
+        <Search size={17} />
+        <input placeholder="搜索知识库名称" />
+      </div>
+      <div className="kb-option-list">
+        {['知识库1', '华熙原料资料库', '法规与竞品情报'].map((item, index) => (
+          <button key={item} className={index < 2 ? 'selected' : ''}>
+            <span>
+              <BookOpen size={16} />
+              {item}
+            </span>
+            <i>{index < 2 ? '已选' : '选择'}</i>
           </button>
-          <div className="modal-pagination">共1条 &lt; <b>1</b> &gt; 跳至 <input /> 页</div>
-        </div>
+        ))}
       </div>
       <ModalFooter close={close} confirm="确定" />
     </section>
@@ -1029,9 +1097,11 @@ function ModalFooter({ close, confirm, muted }: { close: () => void; confirm: st
   );
 }
 
-function RobotFace({ small, micro }: { small?: boolean; micro?: boolean }) {
+function RobotFace({ small, micro, agent = 'secretary' }: { small?: boolean; micro?: boolean; agent?: Agent }) {
+  const src = agent === 'secretary' ? secretaryAvatarUrl : badchildAvatarUrl;
+
   return (
-    <img className={`robot-face ${small ? 'small' : ''} ${micro ? 'micro' : ''}`} src={secretaryAvatarUrl} alt="" aria-hidden="true" />
+    <img className={`robot-face agent-avatar-${agent} ${small ? 'small' : ''} ${micro ? 'micro' : ''}`} src={src} alt="" aria-hidden="true" />
   );
 }
 
