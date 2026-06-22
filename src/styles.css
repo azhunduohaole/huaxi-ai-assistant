@@ -5980,3 +5980,404 @@ th {
     font-size: 11px;
   }
 }
+
+/* Final visual QA adjustments for the MasterGo restoration. */
+@media (min-width: 901px) {
+  .workspace::before {
+    content: "华熙AI知识助手";
+  }
+
+  .chat-stage {
+    padding-bottom: 260px;
+  }
+
+  .fixed-composer {
+    bottom: 26px;
+  }
+}
+
+@media (max-width: 900px) {
+  .sidebar-search {
+    height: 38px;
+    border: 0;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: inset 0 0 0 1px #d9dfeb;
+    padding: 0 12px;
+  }
+
+  .sidebar-search input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #273244;
+    font-size: 15px;
+  }
+
+  .prompt-box,
+  .prompt-box.compact {
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .prompt-tools {
+    order: -1;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 0;
+    scrollbar-width: none;
+  }
+
+  .prompt-tools::-webkit-scrollbar {
+    display: none;
+  }
+
+  .prompt-line {
+    min-height: 42px;
+    align-items: center;
+  }
+
+  .prompt-input {
+    min-height: 34px;
+    font-size: 14px;
+  }
+
+  .send-circle {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+  }
+
+  .chat-stage {
+    padding-bottom: 180px;
+  }
+}
+
+/* Authoritative MasterGo UI layer. Keep this last so older exploratory rules cannot override the design spec. */
+@media (min-width: 901px) {
+  body {
+    background: #d4d4d4;
+  }
+
+  .window-chrome {
+    display: flex;
+    inset: 0 8px auto;
+    height: 28px;
+    border: 1px solid #cfd5de;
+    border-bottom: 0;
+    border-radius: 4px 4px 0 0;
+    background: #fff;
+  }
+
+  .window-chrome::after {
+    content: "华熙智囊";
+    position: absolute;
+    left: 50%;
+    top: 7px;
+    transform: translateX(-50%);
+    color: #2d3644;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .prototype-shell,
+  .prototype-shell.with-citation {
+    grid-template-columns: 116px 177px minmax(0, 1fr);
+    padding-top: 28px;
+    background: #edf1f6;
+  }
+
+  .prototype-shell::before,
+  .prototype-shell::after {
+    content: none;
+  }
+
+  .feishu-rail {
+    width: 116px;
+    min-height: calc(100vh - 28px);
+    padding: 10px 8px 12px;
+    gap: 3px;
+    background: linear-gradient(90deg, #eaf3ff 0%, #f5f8fc 100%);
+    border-right: 1px solid #dbe3ef;
+  }
+
+  .feishu-item {
+    height: 27px;
+    min-height: 27px;
+    grid-template-columns: 18px 1fr;
+    gap: 7px;
+    padding: 0 8px;
+    border-radius: 5px;
+    color: #5f6b7d;
+  }
+
+  .feishu-item span,
+  .feishu-search-row {
+    font-size: 12px;
+  }
+
+  .feishu-item svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .feishu-search-row {
+    height: 28px;
+    border: 1px solid #dbe3ef;
+    border-radius: 5px;
+    background: #e8eef7;
+    color: #6f7b8c;
+    margin-bottom: 6px;
+  }
+
+  .app-sidebar {
+    width: 177px;
+    min-height: calc(100vh - 28px);
+    padding: 34px 10px 14px;
+    background: #f6f7f9;
+    border-right: 1px solid #e7ebf2;
+  }
+
+  .desktop-collapse {
+    position: absolute;
+    left: 8px;
+    top: 14px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .sidebar-search {
+    height: 30px;
+    margin: 34px 0 8px;
+    border: 1px solid #e0e5ef;
+    border-radius: 4px;
+    background: #fff;
+    padding: 0 8px;
+  }
+
+  .side-nav {
+    gap: 4px;
+    margin-bottom: 14px;
+  }
+
+  .side-nav button {
+    height: 32px;
+    padding: 0 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #374151;
+  }
+
+  .side-history::before {
+    content: "置顶";
+    margin: 0 8px 4px;
+    color: #9aa4b5;
+    font-size: 11px;
+  }
+
+  .side-history button {
+    height: 26px;
+    min-height: 26px;
+    padding: 0 8px;
+    border-radius: 4px;
+  }
+
+  .side-history button strong {
+    font-size: 11px;
+    line-height: 26px;
+  }
+
+  .workspace,
+  .workspace.has-citation {
+    min-height: calc(100vh - 28px);
+    margin: 0 8px 8px 0;
+    border: 1px solid #cfd5de;
+    border-top: 0;
+    border-radius: 0;
+    background: #fff;
+    box-shadow: none;
+  }
+
+  .workspace::before {
+    display: none;
+  }
+
+  .view-home .home-stage {
+    min-height: calc(100vh - 28px);
+    align-items: flex-start;
+    padding: 128px 0 0 22px;
+    background: #fff;
+  }
+
+  .home-avatar-anchor {
+    display: none;
+  }
+
+  .view-home .home-agent-switcher {
+    height: 31px;
+    margin-left: 168px;
+    padding: 2px;
+    border-radius: 999px;
+    background: #f0f0f0;
+    box-shadow: none;
+  }
+
+  .view-home .home-agent-switcher button {
+    height: 27px;
+    min-width: 63px;
+    padding: 0 8px 0 4px;
+    gap: 4px;
+    border-radius: 999px;
+    font-size: 11px;
+  }
+
+  .view-home .home-agent-switcher .robot-face.small,
+  .view-home .home-agent-switcher button.active .robot-face.small {
+    width: 20px;
+    height: 20px;
+    flex-basis: 20px;
+  }
+
+  .view-home .home-agent-switcher::after {
+    content: "";
+    width: 32px;
+    height: 32px;
+    margin-left: 10px;
+    border-radius: 50%;
+    background: #fff url("./assets/huaxi-badchild.jpg") center / cover no-repeat;
+    box-shadow: 0 5px 14px rgba(15, 23, 42, 0.16);
+  }
+
+  .view-home .assistant-line {
+    width: 470px;
+    max-width: 470px;
+    margin: 22px 0 14px;
+    color: #111827;
+    font-size: 12px;
+    line-height: 1.45;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .view-home .prompt-box:not(.compact) {
+    width: 470px;
+    min-height: 72px;
+    border: 1px solid #e0e4ec;
+    border-radius: 5px;
+    background: #fff;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08);
+    padding: 10px 12px 8px;
+  }
+
+  .view-home .prompt-box:not(.compact) .prompt-input {
+    min-height: 24px;
+    padding: 0;
+    font-size: 12px;
+  }
+
+  .view-home .prompt-box:not(.compact) .tool-chip {
+    height: 22px;
+    min-height: 22px;
+    padding: 0 7px;
+    border-radius: 3px;
+    font-size: 10px;
+  }
+
+  .view-home .prompt-box:not(.compact) .send-circle {
+    right: 10px;
+    bottom: 8px;
+    width: 25px;
+    height: 25px;
+  }
+
+  .view-home .suggestion-area {
+    width: 470px;
+    margin-top: 12px;
+    gap: 7px;
+  }
+
+  .view-home .suggestion-area button {
+    min-width: 246px;
+    max-width: 350px;
+    min-height: 30px;
+    padding: 0 12px 0 30px;
+    border-radius: 3px;
+    font-size: 11px;
+  }
+
+  .view-home .suggestion-area button:nth-of-type(2) {
+    min-width: 350px;
+  }
+
+  .knowledge-page {
+    max-width: 760px;
+    min-height: calc(100vh - 28px);
+    padding: 42px 24px 40px 30px;
+    background: #fff;
+  }
+
+  .knowledge-toolbar {
+    width: 670px;
+    grid-template-columns: 52px 300px 122px 86px;
+    gap: 10px;
+    margin: 0 0 16px;
+  }
+
+  .knowledge-toolbar h1 {
+    margin: 0;
+    white-space: nowrap;
+    font-size: 17px;
+  }
+
+  .knowledge-toolbar .table-search,
+  .knowledge-toolbar .sort-select,
+  .knowledge-toolbar .muted-primary {
+    height: 30px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+
+  .kb-grid-real {
+    width: 670px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .kb-card-real {
+    height: 92px;
+    padding: 13px 42px 10px 12px;
+    border: 1px solid #e1e5ee;
+    border-radius: 5px;
+    background: #fff;
+  }
+
+  .kb-card-real h2 {
+    margin: 0 0 8px;
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  .kb-card-real p {
+    font-size: 11px;
+    line-height: 17px;
+  }
+
+  .knowledge-page .pagination-real {
+    width: 670px;
+  }
+}
+
+/* Post-QA overrides that must remain after the authoritative desktop layer. */
+@media (min-width: 901px) {
+  .window-chrome::after {
+    content: "华熙AI知识助手";
+  }
+
+  .chat-stage {
+    padding-bottom: 260px;
+  }
+}
