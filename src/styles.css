@@ -6895,6 +6895,183 @@ th {
     padding: 42px 24px 40px 30px;
     background: #fff;
   }
+
+  .knowledge-toolbar {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    margin: 0 0 14px;
+  }
+
+  .knowledge-toolbar h1 {
+    margin: 0;
+    color: #111827;
+    font-size: 17px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .knowledge-toolbar .table-search,
+  .knowledge-toolbar .sort-select,
+  .knowledge-toolbar .muted-primary {
+    height: 30px;
+    min-height: 30px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+
+  .knowledge-toolbar .table-search {
+    padding: 0 8px;
+  }
+
+  .knowledge-toolbar .sort-select {
+    width: 122px;
+    padding: 0 8px;
+  }
+
+  .knowledge-toolbar .muted-primary {
+    width: 86px;
+    padding: 0 8px;
+    background: #0f3f8f;
+  }
+
+  .kb-grid-real {
+    width: 100%;
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+    gap: 10px;
+  }
+
+  .kb-card-real {
+    height: 92px;
+    padding: 13px 42px 10px 12px;
+    border: 1px solid #e1e5ee;
+    border-radius: 5px;
+    background: #fff;
+  }
+
+  .kb-card-real h2 {
+    margin: 0 0 8px;
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  .kb-card-real p {
+    margin: 0;
+    color: #8b95a5;
+    font-size: 11px;
+    line-height: 17px;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .kb-card-real footer {
+    margin-top: 6px;
+    font-size: 11px;
+  }
+
+  .pagination-real {
+    position: static;
+    width: 100%;
+    margin-top: 18px;
+    justify-content: flex-end;
+    gap: 10px;
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 560px) and (max-width: 760px) {
+  .view-home .home-stage {
+    align-items: center;
+    padding: 128px 18px 0;
+  }
+
+  .view-home .home-agent-switcher {
+    margin-left: 0;
+    max-width: 100%;
+  }
+
+  .view-home .home-agent-switcher::after {
+    flex: 0 0 28px;
+    width: 28px;
+    height: 28px;
+    margin-left: 6px;
+  }
+
+  .view-home .assistant-line,
+  .view-home .prompt-box:not(.compact),
+  .view-home .suggestion-area {
+    width: min(100%, 470px);
+    min-width: 0;
+  }
+
+  .view-home .assistant-line {
+    max-width: 100%;
+  }
+
+  .view-home .prompt-box:not(.compact) .prompt-tools {
+    flex-wrap: nowrap;
+    padding-right: 34px;
+  }
+
+  .view-home .prompt-box:not(.compact) .tool-chip {
+    max-width: 58px;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 0 5px;
+    font-size: 9px;
+  }
+
+  .view-home .prompt-box:not(.compact) .kb-tool {
+    max-width: 62px;
+  }
+
+  .view-home .prompt-box:not(.compact) .icon-chip {
+    display: none;
+  }
+
+  .view-home .prompt-box:not(.compact) .tool-chip svg {
+    display: none;
+  }
+
+  .view-home .prompt-box:not(.compact) .send-circle {
+    right: 8px;
+    bottom: 8px;
+  }
+
+  .knowledge-page {
+    width: 100%;
+    max-width: none;
+    min-height: calc(100vh - 28px);
+    padding: 48px 18px 40px;
+    overflow: auto;
+  }
+
+  .knowledge-toolbar {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .knowledge-toolbar h1 {
+    font-size: 18px;
+  }
+
+  .knowledge-toolbar .sort-select,
+  .knowledge-toolbar .muted-primary {
+    width: 100%;
+  }
+
+  .kb-grid-real {
+    grid-template-columns: 1fr;
+  }
+
+  .pagination-real {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
 }
 
 /* MasterGo secondary pages: history, scheduled tasks, and knowledge detail share the same compact app viewport. */
