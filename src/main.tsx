@@ -93,9 +93,14 @@ const Upload = makeIcon(<path d="M12 16V4m0 0-5 5m5-5 5 5M4 20h16" {...iconStrok
 
 type View = 'home' | 'chat' | 'history' | 'tasks' | 'knowledge' | 'kbDetail' | 'admin';
 type Agent = 'secretary' | 'badchild';
+type Scene = '技术综述' | '方向洞察' | '科学传播';
+type StyleTone = '通用' | '严谨';
 type Modal =
   | null
   | 'kbPicker'
+  | 'sceneMenu'
+  | 'styleMenu'
+  | 'tempFile'
   | 'taskConfig'
   | 'frequencyMenu'
   | 'fileStatusMenu'
@@ -106,15 +111,41 @@ type Modal =
   | 'mobileTools'
   | 'mobileScenes';
 
-const conversations = [
-  { title: '冬眠的熊是一次性大量进食...', date: '2026年12月25日', summary: '比如生活在热带、亚热带地区的马来熊，它们的栖息地全年温暖，食物也相对稳定。' },
-  { title: '华熙在HA领域的最新研究成果', date: '2026年12月25日', summary: '围绕透明质酸原料、医美护理与再生医学相关资料进行知识检索。' },
-  { title: '生物护理品原料四大业务领域', date: '2026年12月24日', summary: '梳理生物活性物、合成生物、功能糖及细胞工程等业务资料。' },
-  { title: '抗衰老技术领域月度情报', date: '2026年12月23日', summary: '追踪法规、论文、专利和竞品动态，生成阶段性情报摘要。' },
-  { title: 'AI创新探索分析', date: '2026年12月22日', summary: '从开放问题出发连接不同领域知识，形成技术路径与概念启发。' },
-  { title: '华熙当康品牌宣传资料', date: '2026年12月21日', summary: '检索品牌资料、产品卖点和公开传播素材。' }
+type Conversation = {
+  id: string;
+  title: string;
+  date: string;
+  summary: string;
+  agent: Agent;
+  pinned?: boolean;
+  archived?: boolean;
+};
+
+type ToolConfig = {
+  smartSearch: boolean;
+  selectedKbs: string[];
+  scene: Scene;
+  style: StyleTone;
+  tempFiles: string[];
+};
+
+const initialConversations: Conversation[] = [
+  { id: 's-001', title: '冬眠的熊是一次性大量进食...', date: '2026年12月25日', summary: '比如生活在热带、亚热带地区的马来熊，它们的栖息地全年温暖，食物也相对稳定。', agent: 'secretary', pinned: true },
+  { id: 's-002', title: '华熙在HA领域的最新研究成果', date: '2026年12月25日', summary: '围绕透明质酸原料、医美护理与再生医学相关资料进行知识检索。', agent: 'secretary' },
+  { id: 's-003', title: '生物护理品原料四大业务领域', date: '2026年12月24日', summary: '梳理生物活性物、合成生物、功能糖及细胞工程等业务资料。', agent: 'secretary' },
+  { id: 's-004', title: '抗衰老技术领域月度情报', date: '2026年12月23日', summary: '追踪法规、论文、专利和竞品动态，生成阶段性情报摘要。', agent: 'secretary' },
+  { id: 'b-001', title: 'AI创新探索分析', date: '2026年12月22日', summary: '从开放问题出发连接不同领域知识，形成技术路径与概念启发。', agent: 'badchild' },
+  { id: 's-005', title: '华熙当康品牌宣传资料', date: '2026年12月21日', summary: '检索品牌资料、产品卖点和公开传播素材。', agent: 'secretary' }
 ];
-type Conversation = (typeof conversations)[number];
+
+const todayLabel = '刚刚';
+const defaultToolConfig: ToolConfig = {
+  smartSearch: false,
+  selectedKbs: ['知识库1', '研发资料库'],
+  scene: '技术综述',
+  style: '通用',
+  tempFiles: []
+};
 
 const taskRows = [
   { title: '抗衰老技术领域月度情报', badge: '有新报告', status: '运行中', color: 'green' },
@@ -149,13 +180,19 @@ function App() {
   const [citationOpen, setCitationOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [historySearch, setHistorySearch] = useState('');
+  const [draft, setDraft] = useState('');
+  const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
+  const [activeConversationId, setActiveConversationId] = useState(initialConversations[0].id);
+  const [toolConfig, setToolConfig] = useState<ToolConfig>(defaultToolConfig);
+  const [lastQuestion, setLastQuestion] = useState('帮我找出麦角硫因稳定性相关数据');
+  const [copied, setCopied] = useState(false);
   const filteredConversations = useMemo(
     () =>
       conversations.filter((item) => {
         const keyword = historySearch.toLowerCase();
         return item.title.toLowerCase().includes(keyword) || item.summary.toLowerCase().includes(keyword);
       }),
-    [historySearch]
+    [conversations, historySearch]
   );
 
   useEffect(() => {
@@ -186,9 +223,30 @@ function App() {
     });
   };
 
-  const startChat = () => {
+  const activeConversation = conversations.find((item) => item.id === activeConversationId) ?? conversations[0];
+
+  const startChat = (question = draft) => {
+    const normalized = question.trim() || (agent === 'secretary' ? '华熙在HA领域的最新研究成果' : '抗衰技术创新方向');
+    const title = normalized.length > 15 ? `${normalized.slice(0, 15)}...` : normalized;
+    const id = `session-${Date.now()}`;
+    const nextConversation: Conversation = {
+      id,
+      title,
+      date: todayLabel,
+      summary: agent === 'secretary' ? '正在生成回答...' : `DeepResearch 执行中：${toolConfig.scene} / ${toolConfig.style}`,
+      agent
+    };
+
+    setConversations((items) => [nextConversation, ...items.filter((item) => item.id !== id)]);
+    setActiveConversationId(id);
+    setLastQuestion(normalized);
+    setDraft('');
     setCitationOpen(false);
     openView('chat');
+  };
+
+  const updateToolConfig = (patch: Partial<ToolConfig>) => {
+    setToolConfig((current) => ({ ...current, ...patch }));
   };
 
   return (
@@ -199,6 +257,9 @@ function App() {
         view={view}
         conversations={filteredConversations}
         openView={openView}
+        activeConversationId={activeConversationId}
+        setActiveConversationId={setActiveConversationId}
+        setAgent={setAgent}
         mobileMenuOpen={mobileMenuOpen}
         closeMobileMenu={() => setMobileMenuOpen(false)}
       />
@@ -215,8 +276,34 @@ function App() {
             <Plus size={22} />
           </button>
         </div>
-        {view === 'home' && <HomeView agent={agent} setAgent={setAgent} setModal={setModal} startChat={startChat} />}
-        {view === 'chat' && <ChatView agent={agent} setAgent={setAgent} setModal={setModal} setCitationOpen={setCitationOpen} />}
+        {view === 'home' && (
+          <HomeView
+            agent={agent}
+            setAgent={setAgent}
+            setModal={setModal}
+            startChat={startChat}
+            draft={draft}
+            setDraft={setDraft}
+            toolConfig={toolConfig}
+            updateToolConfig={updateToolConfig}
+          />
+        )}
+        {view === 'chat' && (
+          <ChatView
+            agent={activeConversation?.agent ?? agent}
+            setAgent={setAgent}
+            setModal={setModal}
+            setCitationOpen={setCitationOpen}
+            draft={draft}
+            setDraft={setDraft}
+            toolConfig={toolConfig}
+            updateToolConfig={updateToolConfig}
+            startChat={startChat}
+            lastQuestion={lastQuestion}
+            copied={copied}
+            setCopied={setCopied}
+          />
+        )}
         {view === 'history' && <HistoryView search={historySearch} setSearch={setHistorySearch} />}
         {view === 'tasks' && <TasksView setModal={setModal} />}
         {view === 'knowledge' && <KnowledgeView setView={setView} setModal={setModal} />}
@@ -224,7 +311,8 @@ function App() {
         {view === 'admin' && <AdminView setModal={setModal} openView={openView} />}
       </main>
       {citationOpen && view === 'chat' && <CitationDrawer onClose={() => setCitationOpen(false)} />}
-      {modal && <ModalLayer type={modal} close={() => setModal(null)} setModal={setModal} />}
+      {modal && <ModalLayer type={modal} close={() => setModal(null)} setModal={setModal} toolConfig={toolConfig} updateToolConfig={updateToolConfig} />}
+      {copied && <div className="toast">已复制</div>}
     </div>
   );
 }
@@ -255,20 +343,27 @@ function WindowChrome() {
 
 function FeishuRail() {
   const rail = [
-    { label: '搜索', icon: <Search size={23} /> },
-    { label: '新建', icon: <Plus size={24} /> },
     { label: '消息', icon: <Bell size={21} /> },
+    { label: '视频会议', icon: <MessageCircle size={20} /> },
+    { label: '日历', icon: <Clock3 size={20} /> },
     { label: '云文档', icon: <FileText size={20} /> },
     { label: '多维表格', icon: <Square size={20} /> },
     { label: '工作台', icon: <GridMark /> },
     { label: '通讯录', icon: <Bot size={20} /> },
+    { label: '权益升级', icon: <Globe2 size={19} /> },
+    { label: '飞书 aily', icon: <Bot size={19} /> },
     { label: '更多', icon: <BookOpen size={19} /> },
-    { label: '不重要', icon: <Circle size={18} /> }
+    { label: '工作台设置', icon: <Circle size={18} /> },
+    { label: '多维表格', icon: <Square size={18} /> }
   ];
 
   return (
     <aside className="feishu-rail" aria-label="飞书导航">
       <div className="user-avatar" />
+      <button className="feishu-search-row" aria-label="搜索">
+        <Search size={15} />
+        <span>搜索 (⌘+K)</span>
+      </button>
       {rail.map((item) => (
         <button key={item.label} className={`feishu-item ${item.label === '工作台' ? 'active' : ''}`} aria-label={item.label}>
           {item.icon}
@@ -283,12 +378,18 @@ function AppSidebar({
   view,
   conversations,
   openView,
+  activeConversationId,
+  setActiveConversationId,
+  setAgent,
   mobileMenuOpen,
   closeMobileMenu
 }: {
   view: View;
   conversations: Conversation[];
   openView: (view: View) => void;
+  activeConversationId: string;
+  setActiveConversationId: (id: string) => void;
+  setAgent: (agent: Agent) => void;
   mobileMenuOpen: boolean;
   closeMobileMenu: () => void;
 }) {
@@ -304,6 +405,12 @@ function AppSidebar({
         </button>
         <Menu size={20} className="desktop-collapse" />
       </div>
+      {!adminMode && (
+        <div className="sidebar-search">
+          <Search size={15} />
+          <input placeholder="搜索对话名称" />
+        </div>
+      )}
       <nav className="side-nav" aria-label="AI助手导航">
         {adminMode ? (
           <>
@@ -326,13 +433,13 @@ function AppSidebar({
               <MessageCircle size={16} />
               新建会话
             </button>
-            <button className={view === 'tasks' ? 'active' : ''} onClick={() => openView('tasks')}>
-              <Clock3 size={17} />
-              定时任务
-            </button>
             <button className={view === 'knowledge' || view === 'kbDetail' ? 'active' : ''} onClick={() => openView('knowledge')}>
               <BookOpen size={16} />
               知识库
+            </button>
+            <button className={view === 'tasks' ? 'active' : ''} onClick={() => openView('tasks')}>
+              <Clock3 size={17} />
+              定时任务
             </button>
             <button className={view === 'history' ? 'active' : ''} onClick={() => openView('history')}>
               <Clock3 size={16} />
@@ -345,7 +452,15 @@ function AppSidebar({
         <>
           <div className="side-history">
             {conversations.map((item, index) => (
-              <button key={`${item.title}-${index}`} className={index === 0 ? 'current' : ''} onClick={() => openView('chat')}>
+              <button
+                key={item.id}
+                className={item.id === activeConversationId ? 'current' : ''}
+                onClick={() => {
+                  setActiveConversationId(item.id);
+                  setAgent(item.agent);
+                  openView('chat');
+                }}
+              >
                 <span className="conversation-date">{item.date}</span>
                 <strong>{item.title}</strong>
                 <small>{item.summary}</small>
@@ -373,12 +488,20 @@ function HomeView({
   agent,
   setAgent,
   setModal,
-  startChat
+  startChat,
+  draft,
+  setDraft,
+  toolConfig,
+  updateToolConfig
 }: {
   agent: Agent;
   setAgent: (agent: Agent) => void;
   setModal: (modal: Modal) => void;
-  startChat: () => void;
+  startChat: (question?: string) => void;
+  draft: string;
+  setDraft: (value: string) => void;
+  toolConfig: ToolConfig;
+  updateToolConfig: (patch: Partial<ToolConfig>) => void;
 }) {
   return (
     <section className="home-stage">
@@ -391,7 +514,16 @@ function HomeView({
           ? '你好,我是华熙小秘书,我严格控制输出内容，基于已知事实作答'
           : '我是华熙坏孩子，我能够对开放性问题进行创新探索'}
       </p>
-      <PromptBox agent={agent} setAgent={setAgent} setModal={setModal} onSend={startChat} />
+      <PromptBox
+        agent={agent}
+        setAgent={setAgent}
+        setModal={setModal}
+        onSend={startChat}
+        draft={draft}
+        setDraft={setDraft}
+        toolConfig={toolConfig}
+        updateToolConfig={updateToolConfig}
+      />
       <SuggestionList agent={agent} onSelect={startChat} />
     </section>
   );
@@ -402,40 +534,63 @@ function PromptBox({
   setAgent,
   setModal,
   onSend,
+  draft,
+  setDraft,
+  toolConfig,
+  updateToolConfig,
   compact
 }: {
   agent: Agent;
   setAgent: (agent: Agent) => void;
   setModal: (modal: Modal) => void;
-  onSend?: () => void;
+  onSend?: (question?: string) => void;
+  draft: string;
+  setDraft: (value: string) => void;
+  toolConfig: ToolConfig;
+  updateToolConfig: (patch: Partial<ToolConfig>) => void;
   compact?: boolean;
 }) {
+  const placeholder =
+    agent === 'secretary'
+      ? '输入您的问题，小秘书将为您找到最相关的答案'
+      : '输入一个开放性问题，AI将连接不同领域知识，生成技术综述并启发创新方向。';
+
+  const submit = () => onSend?.(draft);
+
   return (
     <div className={`prompt-box agent-${agent} ${compact ? 'compact' : ''}`}>
       <div className="prompt-line">
         <AgentPill agent={agent} setAgent={setAgent} />
-        <span className="placeholder">
-          {agent === 'secretary'
-            ? '输入您的问题，小秘书将为您找到最相关的答案'
-            : '输入一个开放性问题，AI将连接不同领域的知识图谱,生成技术综述并启发创新方向。'}
-        </span>
+        <textarea
+          className="prompt-input"
+          value={draft}
+          placeholder={placeholder}
+          rows={compact ? 1 : 2}
+          onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={(event) => {
+            if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+              event.preventDefault();
+              submit();
+            }
+          }}
+        />
       </div>
       <div className="prompt-tools">
         {agent === 'secretary' ? (
           <>
-            <button className="icon-chip">
+            <button className="icon-chip" aria-label="添加临时文件" onClick={() => setModal('tempFile')}>
               <LinkGlyph />
             </button>
-            <button className="tool-chip">
+            <button className={`tool-chip ${toolConfig.smartSearch ? 'active' : ''}`} onClick={() => updateToolConfig({ smartSearch: !toolConfig.smartSearch })}>
               <Bot size={15} />
-              智能搜索
+              智能搜索{toolConfig.smartSearch ? '已开' : ''}
             </button>
             <button className="tool-chip kb-tool" onClick={() => setModal('kbPicker')}>
               <Bot size={15} />
-              知识库(3)
+              知识库({toolConfig.selectedKbs.length})
             </button>
-            <button className="tool-chip">
-              技术综述
+            <button className={`tool-chip ${toolConfig.scene === '技术综述' ? 'active' : ''}`} onClick={() => setModal('sceneMenu')}>
+              {toolConfig.scene}
               <ChevronDown size={14} />
             </button>
           </>
@@ -443,19 +598,19 @@ function PromptBox({
           <>
             <button className="tool-chip kb-tool" onClick={() => setModal('kbPicker')}>
               <Bot size={15} />
-              知识库(3)
+              知识库({toolConfig.selectedKbs.length})
             </button>
-            <button className="tool-chip">
-              科学洞察
+            <button className="tool-chip" onClick={() => setModal('sceneMenu')}>
+              {toolConfig.scene}
               <ChevronDown size={14} />
             </button>
-            <button className="tool-chip">
-              风格设定
+            <button className="tool-chip" onClick={() => setModal('styleMenu')}>
+              {toolConfig.style}
               <ChevronDown size={14} />
             </button>
           </>
         )}
-        <button className="send-circle" aria-label="发送" onClick={onSend}>
+        <button className="send-circle" aria-label="发送" onClick={submit}>
           <Send size={24} />
         </button>
       </div>
@@ -491,16 +646,19 @@ function AgentSwitch({ agent, setAgent }: { agent: Agent; setAgent: (agent: Agen
   );
 }
 
-function SuggestionList({ agent, onSelect }: { agent: Agent; onSelect: () => void }) {
+function SuggestionList({ agent, onSelect }: { agent: Agent; onSelect: (question?: string) => void }) {
+  const badchildSuggestions = ['AI创新探索分析', '再生医学赋能抗衰护肤', '透明质酸跨领域应用机会'];
+  const secretarySuggestions = ['华熙在HA领域的最新研究成果', '生物护理品原料包含的四大业务领域讲解', '华熙当康、生物科技品牌宣传资料'];
+
   if (agent === 'badchild') {
     return (
       <div className="suggestion-area badchild">
         <span>试试这些示例:</span>
         <div className="report-suggestions">
-          {[1, 2, 3].map((item) => (
-            <button key={item} className="report-suggestion" onClick={onSelect}>
+          {badchildSuggestions.map((item) => (
+            <button key={item} className="report-suggestion" onClick={() => onSelect(item)}>
               <ReportIcon />
-              XXX创新探索分析
+              {item}
             </button>
           ))}
         </div>
@@ -511,9 +669,11 @@ function SuggestionList({ agent, onSelect }: { agent: Agent; onSelect: () => voi
   return (
     <div className="suggestion-area">
       <span>试试这些示例:</span>
-      <button onClick={onSelect}>华熙在HA领域的最新研究成果</button>
-      <button onClick={onSelect}>生物护理品原料包含的四大业务领域讲解</button>
-      <button onClick={onSelect}>华熙当康、生物科技品牌宣传资料</button>
+      {secretarySuggestions.map((item) => (
+        <button key={item} onClick={() => onSelect(item)}>
+          {item}
+        </button>
+      ))}
     </div>
   );
 }
@@ -522,34 +682,92 @@ function ChatView({
   agent,
   setAgent,
   setModal,
-  setCitationOpen
+  setCitationOpen,
+  draft,
+  setDraft,
+  toolConfig,
+  updateToolConfig,
+  startChat,
+  lastQuestion,
+  copied,
+  setCopied
 }: {
   agent: Agent;
   setAgent: (agent: Agent) => void;
   setModal: (modal: Modal) => void;
   setCitationOpen: (open: boolean) => void;
+  draft: string;
+  setDraft: (value: string) => void;
+  toolConfig: ToolConfig;
+  updateToolConfig: (patch: Partial<ToolConfig>) => void;
+  startChat: (question?: string) => void;
+  lastQuestion: string;
+  copied: boolean;
+  setCopied: (copied: boolean) => void;
 }) {
   return (
     <section className="chat-stage">
       <div className="breadcrumb">
-        麦角硫因稳定性相关数据数据分析 <ChevronRight size={18} />
+        {lastQuestion} <ChevronRight size={18} />
       </div>
-      {agent === 'secretary' ? <SecretaryAnswer setCitationOpen={setCitationOpen} /> : <BadChildAnswer setModal={setModal} />}
+      {agent === 'secretary' ? (
+        <SecretaryAnswer setCitationOpen={setCitationOpen} lastQuestion={lastQuestion} copied={copied} setCopied={setCopied} toolConfig={toolConfig} />
+      ) : (
+        <BadChildAnswer setModal={setModal} lastQuestion={lastQuestion} toolConfig={toolConfig} />
+      )}
       <div className="fixed-composer">
-        <PromptBox agent={agent} setAgent={setAgent} setModal={setModal} compact />
+        <PromptBox
+          agent={agent}
+          setAgent={setAgent}
+          setModal={setModal}
+          onSend={startChat}
+          draft={draft}
+          setDraft={setDraft}
+          toolConfig={toolConfig}
+          updateToolConfig={updateToolConfig}
+          compact
+        />
       </div>
     </section>
   );
 }
 
-function SecretaryAnswer({ setCitationOpen }: { setCitationOpen: (open: boolean) => void }) {
+function SecretaryAnswer({
+  setCitationOpen,
+  lastQuestion,
+  copied,
+  setCopied,
+  toolConfig
+}: {
+  setCitationOpen: (open: boolean) => void;
+  lastQuestion: string;
+  copied: boolean;
+  setCopied: (copied: boolean) => void;
+  toolConfig: ToolConfig;
+}) {
+  const copyAnswer = async () => {
+    const text = '根据知识库搜索结果，我为您整理了麦角硫因稳定性相关数据，包括热稳定性、关键稳定性机制与引用来源。';
+    try {
+      await navigator.clipboard?.writeText(text);
+    } catch {
+      // Clipboard permissions are browser-dependent in static previews.
+    }
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1400);
+  };
+
   return (
     <div className="answer-flow">
-      <div className="user-bubble">帮我找出麦角硫因稳定性相关数据</div>
+      <div className="user-bubble">{lastQuestion}</div>
       <div className="assistant-row">
         <RobotFace micro agent="secretary" />
         <div className="answer-main">
           <p className="answer-ask">我来帮您搜索麦角硫因（Ergothioneine）稳定性相关的研究数据。</p>
+          <div className="answer-meta">
+            <span>{toolConfig.smartSearch ? '已启用智能搜索' : '未启用智能搜索'}</span>
+            <span>知识库 {toolConfig.selectedKbs.length} 个</span>
+            <span>{toolConfig.scene}</span>
+          </div>
           <button className="search-strip" onClick={() => setCitationOpen(true)}>
             <Search size={22} />
             <span className="search-label">搜索知识库</span>
@@ -611,6 +829,13 @@ function SecretaryAnswer({ setCitationOpen }: { setCitationOpen: (open: boolean)
                 </span>
               </li>
             </ul>
+            <div className="answer-actions">
+              <button onClick={copyAnswer}>
+                <Copy size={16} />
+                {copied ? '已复制' : '复制'}
+              </button>
+              <button onClick={() => setCitationOpen(true)}>查看引用</button>
+            </div>
           </div>
         </div>
       </div>
@@ -618,12 +843,31 @@ function SecretaryAnswer({ setCitationOpen }: { setCitationOpen: (open: boolean)
   );
 }
 
-function BadChildAnswer({ setModal }: { setModal: (modal: Modal) => void }) {
+function BadChildAnswer({ setModal, lastQuestion, toolConfig }: { setModal: (modal: Modal) => void; lastQuestion: string; toolConfig: ToolConfig }) {
+  const steps = [
+    { title: '需求解析', status: '完成' },
+    { title: '信息检索', status: '完成' },
+    { title: '资料整理', status: '完成' },
+    { title: '报告生成', status: '完成' }
+  ];
+
   return (
     <div className="answer-flow badchild-answer">
+      <div className="user-bubble">{lastQuestion}</div>
       <div className="path-card">
         <strong>研究完成</strong>
-        <span>我已完成了关于麦角硫因稳定性相关的科研探索。</span>
+        <span>
+          已按「{toolConfig.scene} / {toolConfig.style}」完成科研探索。
+        </span>
+        <div className="task-path">
+          {steps.map((step, index) => (
+            <div className="path-step" key={step.title}>
+              <i>{index + 1}</i>
+              <strong>{step.title}</strong>
+              <small>{step.status}</small>
+            </div>
+          ))}
+        </div>
       </div>
       <h2>通过系统性的研究，我为您整理了一份详尽的报告。</h2>
       <p>报告涵盖了冲突的历史背景、最新动态、各方立场、影响评估以及未来展望。</p>
@@ -746,30 +990,45 @@ function KnowledgeView({ setView, setModal }: { setView: (view: View) => void; s
   return (
     <section className="knowledge-page">
       <div className="knowledge-toolbar">
-        <button className="muted-primary" onClick={() => setModal('createKb')}>
-          创建知识库
-        </button>
-        <span />
+        <h1>知识库</h1>
+        <div className="table-search">
+          <Search size={20} />
+          <input placeholder="支持文件名称/关键词搜索" />
+        </div>
         <button className="sort-select">
           按创建时间排序 <ChevronDown size={16} />
         </button>
-        <div className="table-search">
-          <Search size={20} />
-          <input placeholder="输入知识库名称或关键词以查询" />
-        </div>
+        <button className="muted-primary" onClick={() => setModal('createKb')}>
+          创建知识库
+        </button>
       </div>
       <div className="kb-grid-real">
         {kbCards.map((card, index) => (
-          <article key={`${card.title}-${index}`} className="kb-card-real" onClick={() => setView('kbDetail')}>
-            <h2>{card.title}</h2>
-            <p>{card.desc}</p>
+          <article
+            key={`${card.title}-${index}`}
+            className={`kb-card-real ${index === 4 ? 'selected show-menu' : ''}`}
+            onClick={() => setView('kbDetail')}
+          >
+            <button className="kb-more" aria-label="更多操作" onClick={(event) => event.stopPropagation()}>
+              <MoreHorizontal size={16} />
+            </button>
+            <h2>华熙生物麦角硫因稳定性相关数据整理如下</h2>
+            <p>基于高通量测序技术的基因组分析项目，包含数据预处理变异检测和功能注释等核心分析流程。</p>
             <footer>
-              {card.owner} ｜ 1天前 ｜ 文件数:{card.files}
-              <span>
-                <Edit3 size={18} />
-                <Trash2 size={18} />
-              </span>
+              王大锤 <i /> 180天前 <i /> 200个文件
             </footer>
+            {index === 4 && (
+              <div className="kb-action-menu" onClick={(event) => event.stopPropagation()}>
+                <button>
+                  <Edit3 size={14} />
+                  重命名
+                </button>
+                <button className="danger">
+                  <Trash2 size={14} />
+                  删除
+                </button>
+              </div>
+            )}
           </article>
         ))}
       </div>
@@ -912,15 +1171,30 @@ function CitationDrawer({ onClose }: { onClose: () => void }) {
   );
 }
 
-function ModalLayer({ type, close, setModal }: { type: Modal; close: () => void; setModal: (modal: Modal) => void }) {
+function ModalLayer({
+  type,
+  close,
+  setModal,
+  toolConfig,
+  updateToolConfig
+}: {
+  type: Modal;
+  close: () => void;
+  setModal: (modal: Modal) => void;
+  toolConfig: ToolConfig;
+  updateToolConfig: (patch: Partial<ToolConfig>) => void;
+}) {
   return (
     <div
-      className={`modal-mask ${type === 'mobileTools' || type === 'mobileScenes' ? 'mobile-sheet-mask' : ''} ${type === 'kbPicker' ? 'kb-picker-mask' : ''} ${type === 'frequencyMenu' ? 'frequency-menu-mask' : ''} ${type === 'fileStatusMenu' ? 'file-status-menu-mask' : ''}`}
+      className={`modal-mask ${type === 'mobileTools' || type === 'mobileScenes' ? 'mobile-sheet-mask' : ''} ${type === 'kbPicker' || type === 'sceneMenu' || type === 'styleMenu' ? 'kb-picker-mask' : ''} ${type === 'frequencyMenu' ? 'frequency-menu-mask' : ''} ${type === 'fileStatusMenu' ? 'file-status-menu-mask' : ''}`}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) close();
       }}
     >
-      {type === 'kbPicker' && <KbPicker close={close} />}
+      {type === 'kbPicker' && <KbPicker close={close} toolConfig={toolConfig} updateToolConfig={updateToolConfig} />}
+      {type === 'sceneMenu' && <SceneMenu close={close} toolConfig={toolConfig} updateToolConfig={updateToolConfig} />}
+      {type === 'styleMenu' && <StyleMenu close={close} toolConfig={toolConfig} updateToolConfig={updateToolConfig} />}
+      {type === 'tempFile' && <TempFileModal close={close} toolConfig={toolConfig} updateToolConfig={updateToolConfig} />}
       {type === 'taskConfig' && <TaskConfig close={close} />}
       {type === 'frequencyMenu' && <FrequencyMenu close={close} />}
       {type === 'fileStatusMenu' && <FileStatusMenu close={close} />}
@@ -1013,7 +1287,22 @@ function FileStatusMenu({ close }: { close: () => void }) {
   );
 }
 
-function KbPicker({ close }: { close: () => void }) {
+function KbPicker({
+  close,
+  toolConfig,
+  updateToolConfig
+}: {
+  close: () => void;
+  toolConfig: ToolConfig;
+  updateToolConfig: (patch: Partial<ToolConfig>) => void;
+}) {
+  const options = ['知识库1', '研发资料库', '华熙原料资料库', '法规与竞品情报'];
+  const toggleKb = (name: string) => {
+    const selected = toolConfig.selectedKbs.includes(name);
+    const next = selected ? toolConfig.selectedKbs.filter((item) => item !== name) : [...toolConfig.selectedKbs, name].slice(0, 3);
+    updateToolConfig({ selectedKbs: next });
+  };
+
   return (
     <section className="modal-panel kb-picker-modal" aria-label="选择知识库">
       <ModalClose close={close} />
@@ -1026,32 +1315,141 @@ function KbPicker({ close }: { close: () => void }) {
       </div>
       <div className="kb-picker-subhead">选择知识库</div>
       <div className="kb-selected-row">
-        <button>
-          知识库1
-          <X size={14} />
-        </button>
-        <button>
-          研发资料库
-          <X size={14} />
-        </button>
+        {toolConfig.selectedKbs.map((item) => (
+          <button key={item} onClick={() => toggleKb(item)}>
+            {item}
+            <X size={14} />
+          </button>
+        ))}
       </div>
       <div className="inner-search">
         <Search size={17} />
         <input placeholder="搜索知识库名称" />
       </div>
       <div className="kb-option-list">
-        {['知识库1', '华熙原料资料库', '法规与竞品情报'].map((item, index) => (
-          <button key={item} className={index < 2 ? 'selected' : ''}>
+        {options.map((item) => {
+          const selected = toolConfig.selectedKbs.includes(item);
+          return (
+          <button key={item} className={selected ? 'selected' : ''} onClick={() => toggleKb(item)}>
             <span>
               <BookOpen size={16} />
               {item}
             </span>
-            <i>{index < 2 ? '✓' : '+'}</i>
+            <i>{selected ? '✓' : '+'}</i>
           </button>
-        ))}
+          );
+        })}
       </div>
       <small className="kb-picker-tip">最多选择 3 个知识库，选择后会随提问一起参与检索。</small>
       <ModalFooter close={close} confirm="确定" />
+    </section>
+  );
+}
+
+function SceneMenu({
+  close,
+  toolConfig,
+  updateToolConfig
+}: {
+  close: () => void;
+  toolConfig: ToolConfig;
+  updateToolConfig: (patch: Partial<ToolConfig>) => void;
+}) {
+  const scenes: Array<{ title: Scene; desc: string; tone: string }> = [
+    { title: '技术综述', desc: '全面系统梳理技术领域发展脉络与核心要点。', tone: 'yellow' },
+    { title: '方向洞察', desc: '从多源资料提炼机会点、风险与可探索路径。', tone: 'green' },
+    { title: '科学传播', desc: '面向传播场景生成清晰、可信、易理解的内容。', tone: 'pink' }
+  ];
+
+  return (
+    <section className="modal-panel mini-menu scene-menu" aria-label="选择场景">
+      <div className="mini-menu-head">场景选择</div>
+      {scenes.map((scene) => (
+        <button
+          key={scene.title}
+          className={toolConfig.scene === scene.title ? 'selected' : ''}
+          onClick={() => {
+            updateToolConfig({ scene: scene.title });
+            close();
+          }}
+        >
+          <i className={scene.tone}>
+            <Bot size={20} />
+          </i>
+          <span>
+            <strong>{scene.title}</strong>
+            <small>{scene.desc}</small>
+          </span>
+          <em>{toolConfig.scene === scene.title ? '✓' : ''}</em>
+        </button>
+      ))}
+    </section>
+  );
+}
+
+function StyleMenu({
+  close,
+  toolConfig,
+  updateToolConfig
+}: {
+  close: () => void;
+  toolConfig: ToolConfig;
+  updateToolConfig: (patch: Partial<ToolConfig>) => void;
+}) {
+  const styles: StyleTone[] = ['通用', '严谨'];
+
+  return (
+    <section className="modal-panel mini-menu style-menu" aria-label="选择输出风格">
+      <div className="mini-menu-head">风格设定</div>
+      {styles.map((style) => (
+        <button
+          key={style}
+          className={toolConfig.style === style ? 'selected' : ''}
+          onClick={() => {
+            updateToolConfig({ style });
+            close();
+          }}
+        >
+          <span>
+            <strong>{style}</strong>
+            <small>{style === '严谨' ? '更适合科研、法规、报告类内容。' : '适合大多数问答与探索场景。'}</small>
+          </span>
+          <em>{toolConfig.style === style ? '✓' : ''}</em>
+        </button>
+      ))}
+    </section>
+  );
+}
+
+function TempFileModal({
+  close,
+  toolConfig,
+  updateToolConfig
+}: {
+  close: () => void;
+  toolConfig: ToolConfig;
+  updateToolConfig: (patch: Partial<ToolConfig>) => void;
+}) {
+  const addFile = () => {
+    const fileName = `临时资料${toolConfig.tempFiles.length + 1}.pdf`;
+    updateToolConfig({ tempFiles: [...toolConfig.tempFiles, fileName] });
+  };
+
+  return (
+    <section className="modal-panel upload-modal temp-file-modal">
+      <ModalClose close={close} />
+      <h2>临时文件</h2>
+      <div className="drop-zone" onClick={addFile}>
+        <Upload size={38} />
+        <p>点击上传或拖拽本地文件至此处</p>
+        <small>临时文件仅参与当前会话，不写入知识库。</small>
+      </div>
+      <div className="temp-file-list">
+        {(toolConfig.tempFiles.length ? toolConfig.tempFiles : ['麦角硫因稳定性资料.pdf']).map((file) => (
+          <span key={file}>{file}</span>
+        ))}
+      </div>
+      <ModalFooter close={close} confirm="完成" muted />
     </section>
   );
 }
