@@ -7533,3 +7533,333 @@ th {
     font-size: 13px;
   }
 }
+
+/* MasterGo final desktop correction: the UI稿 is a compact Feishu workbench canvas. */
+@media (min-width: 901px) {
+  .window-chrome {
+    inset: 0 8px auto;
+    height: 28px;
+  }
+
+  .mac-dots {
+    left: 12px;
+    top: 10px;
+  }
+
+  .mac-dots i {
+    width: 8px;
+    height: 8px;
+  }
+
+  .prototype-shell,
+  .prototype-shell.with-citation {
+    grid-template-columns: 116px 177px minmax(0, 1fr) auto;
+    padding-top: 28px;
+    background: #edf1f6;
+  }
+
+  .feishu-rail {
+    width: 116px;
+    min-height: calc(100vh - 28px);
+    padding: 10px 8px 12px;
+    gap: 3px;
+    background: linear-gradient(90deg, #eaf3ff 0%, #f5f8fc 100%);
+  }
+
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    margin: 0 0 8px;
+  }
+
+  .feishu-search-row {
+    height: 28px;
+    min-height: 28px;
+    margin-bottom: 6px;
+    padding: 0 8px;
+    border-radius: 5px;
+    font-size: 12px;
+  }
+
+  .feishu-item {
+    width: 100%;
+    height: 27px;
+    min-height: 27px;
+    grid-template-columns: 18px 1fr;
+    gap: 7px;
+    padding: 0 8px;
+    border-radius: 5px;
+  }
+
+  .feishu-item svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .feishu-item span {
+    font-size: 12px;
+  }
+
+  .app-sidebar {
+    width: 177px;
+    min-height: calc(100vh - 28px);
+    padding: 34px 10px 14px;
+    background: #f6f7f9;
+  }
+
+  .desktop-collapse {
+    left: 8px;
+    top: 14px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .sidebar-search {
+    height: 30px;
+    margin: 34px 0 8px;
+    padding: 0 8px;
+    border-radius: 4px;
+  }
+
+  .sidebar-search input {
+    font-size: 12px;
+  }
+
+  .side-nav {
+    gap: 4px;
+    margin-bottom: 14px;
+  }
+
+  .side-nav button {
+    height: 32px;
+    min-height: 32px;
+    gap: 8px;
+    padding: 0 8px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  .side-nav svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .side-history {
+    gap: 3px;
+    margin-top: 0;
+    padding-left: 0;
+  }
+
+  .side-history::before {
+    margin: 0 8px 4px;
+    font-size: 11px;
+  }
+
+  .side-history button {
+    height: 26px;
+    min-height: 26px;
+    padding: 0 8px;
+    border-radius: 4px;
+    transition: background 160ms ease, color 160ms ease;
+  }
+
+  .side-history button strong {
+    font-size: 11px;
+    line-height: 26px;
+  }
+
+  .side-history button:hover,
+  .side-history button.current {
+    background: #fff;
+  }
+
+  .side-history button:hover strong,
+  .side-history button.current strong {
+    color: #1f2937;
+  }
+
+  .conversation-actions {
+    right: 6px;
+    gap: 4px;
+  }
+
+  .conversation-actions svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .all-history {
+    height: 26px;
+    margin-top: 4px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+
+  .app-title {
+    left: 10px;
+    bottom: 12px;
+    height: 34px;
+  }
+
+  .app-title .robot-face.small {
+    width: 24px;
+    height: 24px;
+    flex-basis: 24px;
+  }
+
+  .app-title strong {
+    font-size: 12px;
+  }
+
+  .workspace,
+  .workspace.has-citation {
+    min-height: calc(100vh - 28px);
+    margin: 0 8px 8px 0;
+    border-left: 0;
+  }
+
+  .view-home .home-stage {
+    min-height: calc(100vh - 28px);
+    align-items: flex-start;
+    padding: 128px 0 0 22px;
+  }
+
+  .view-home .home-agent-switcher {
+    height: 31px;
+    margin: 0 0 0 168px;
+    padding: 2px;
+    box-shadow: none;
+  }
+
+  .view-home .home-agent-switcher button {
+    height: 27px;
+    min-width: 63px;
+    padding: 0 8px 0 4px;
+    gap: 4px;
+    font-size: 11px;
+  }
+
+  .view-home .home-agent-switcher .robot-face.small,
+  .view-home .home-agent-switcher button.active .robot-face.small {
+    width: 20px;
+    height: 20px;
+    flex-basis: 20px;
+  }
+
+  .view-home .home-agent-switcher::after {
+    width: 32px;
+    height: 32px;
+    margin-left: 10px;
+  }
+
+  .view-home .assistant-line {
+    width: 470px;
+    max-width: 470px;
+    margin: 22px 0 14px;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .view-home .prompt-box:not(.compact) {
+    width: 470px;
+    min-width: 470px;
+    min-height: 72px;
+    padding: 10px 12px 8px;
+    border-radius: 5px;
+  }
+
+  .view-home .prompt-box:not(.compact) .prompt-line {
+    min-height: 26px;
+  }
+
+  .view-home .prompt-box:not(.compact) .prompt-input {
+    min-height: 24px;
+    font-size: 12px;
+  }
+
+  .view-home .prompt-box:not(.compact) .prompt-tools {
+    gap: 6px;
+    padding-right: 34px;
+  }
+
+  .view-home .prompt-box:not(.compact) .icon-chip {
+    width: 18px;
+    min-height: 22px;
+  }
+
+  .view-home .prompt-box:not(.compact) .tool-chip {
+    height: 22px;
+    min-height: 22px;
+    max-width: none;
+    padding: 0 7px;
+    border-radius: 3px;
+    font-size: 10px;
+  }
+
+  .view-home .prompt-box:not(.compact) .tool-chip svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .view-home .prompt-box:not(.compact) .send-circle {
+    right: 10px;
+    bottom: 8px;
+    width: 25px;
+    height: 25px;
+  }
+
+  .view-home .prompt-box:not(.compact) .send-circle svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .view-home .suggestion-area:not(.badchild) {
+    width: 470px;
+    max-width: 470px;
+    margin-top: 12px;
+    gap: 7px;
+  }
+
+  .view-home .suggestion-area:not(.badchild) button {
+    min-height: 30px;
+    min-width: 246px;
+    max-width: 350px;
+    padding: 0 12px 0 30px;
+    border-radius: 3px;
+    font-size: 11px;
+  }
+
+  .view-home .suggestion-area:not(.badchild) button:nth-of-type(2) {
+    min-width: 350px;
+  }
+
+  .view-home .suggestion-area.badchild {
+    width: 470px;
+    max-width: 470px;
+    margin-top: 12px;
+  }
+
+  .view-home .suggestion-area.badchild .report-suggestions {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .view-home .suggestion-area.badchild .report-suggestion {
+    width: max-content;
+    min-width: 246px;
+    max-width: 350px;
+    min-height: 30px;
+    padding: 0 12px 0 30px;
+    border-radius: 3px;
+    font-size: 11px;
+    gap: 8px;
+  }
+
+  .view-home .suggestion-area.badchild .report-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    box-shadow: 5px 5px 0 #dbe6ff;
+    flex-basis: 18px;
+  }
+}
