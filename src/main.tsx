@@ -151,14 +151,14 @@ function App() {
         mobileMenuOpen={mobileMenuOpen}
         closeMobileMenu={() => setMobileMenuOpen(false)}
       />
-      <main className={`workspace ${citationOpen && view === 'chat' ? 'has-citation' : ''}`}>
+      <main className={`workspace view-${view} ${citationOpen && view === 'chat' ? 'has-citation' : ''}`}>
         <div className="mobile-topbar">
           <button className="mobile-menu" aria-label="打开菜单" onClick={() => setMobileMenuOpen(true)}>
             <Menu size={22} />
           </button>
           <div className="mobile-brand">
             <RobotFace small />
-            <strong>华熙AI知识助手</strong>
+            <strong>{view === 'chat' ? '会话名称名称' : '华熙AI知识助手'}</strong>
           </div>
           <button className="mobile-new" aria-label="配置能力" onClick={() => setModal('mobileTools')}>
             <Plus size={22} />
@@ -318,7 +318,7 @@ function HomeView({ agent, setAgent, setModal }: { agent: Agent; setAgent: (agen
       </div>
       <p className="assistant-line">
         {agent === 'secretary'
-          ? '我是华熙小秘书，我能够对xxx数据进行xxx问询'
+          ? '你好,我是华熙小秘书，我严格控制输出内容，基于已知事实作答'
           : '我是华熙坏孩子，我能够对开放性问题进行创新探索'}
       </p>
       <PromptBox agent={agent} setAgent={setAgent} setModal={setModal} />
@@ -421,9 +421,9 @@ function SuggestionList({ agent }: { agent: Agent }) {
   return (
     <div className="suggestion-area">
       <span>试试这些示例:</span>
-      <button>帮我找出麦角硫因稳定性相关数据</button>
-      <button>帮我找出麦角硫因稳定性相关数据帮我找出麦角硫因稳定性相关数据帮我找出麦角硫因稳定性相关数据</button>
-      <button>帮我找出麦角硫因稳定性相关数据</button>
+      <button>华熙在HA领域的最新研究成果</button>
+      <button>生物护理品原料包含的四大业务领域讲解</button>
+      <button>华熙当康、生物科技品牌宣传资料</button>
     </div>
   );
 }
@@ -462,7 +462,9 @@ function SecretaryAnswer({ setCitationOpen }: { setCitationOpen: (open: boolean)
           <p className="answer-ask">我来帮您搜索麦角硫因（Ergothioneine）稳定性相关的研究数据。</p>
           <button className="search-strip" onClick={() => setCitationOpen(true)}>
             <Search size={22} />
-            搜索知识库 <span>|</span> 知识库文件名.pdf
+            <span className="search-label">搜索知识库</span>
+            <span className="search-separator">|</span>
+            <span className="search-file">知识库文件名.pdf</span>
             <strong>36个结果 &gt;</strong>
           </button>
           <p>根据知识库搜索结果，我为您整理了麦角硫因（Ergothioneine, EGT）的稳定性相关数据。以下是详细的技术数据汇总：</p>
