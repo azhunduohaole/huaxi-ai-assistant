@@ -755,10 +755,6 @@ function AppSidebar({
               <Clock3 size={17} />
               定时任务
             </button>
-            <button className={view === 'history' ? 'active' : ''} onClick={() => openView('history')}>
-              <Clock3 size={16} />
-              历史会话
-            </button>
           </>
         )}
       </nav>
