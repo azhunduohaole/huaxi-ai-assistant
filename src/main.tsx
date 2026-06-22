@@ -1,741 +1,743 @@
 import React, { useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import {
-  Activity,
-  BarChart3,
-  BellRing,
-  BookOpen,
-  Bot,
-  BrainCircuit,
-  CheckCircle2,
-  ChevronDown,
-  CirclePause,
-  Clipboard,
-  Clock3,
-  Database,
-  Download,
-  ExternalLink,
-  FileDown,
-  FileText,
-  FolderCog,
-  Globe2,
-  LayoutDashboard,
-  Menu,
-  MessageSquarePlus,
-  MoreHorizontal,
-  PanelRightOpen,
-  Pin,
-  Plus,
-  Search,
-  SendHorizontal,
-  Settings2,
-  ShieldCheck,
-  Sparkles,
-  UploadCloud,
-  X,
-  Zap
-} from 'lucide-react';
 import './styles.css';
 
-type Mode = 'secretary' | 'badchild';
-type View = 'chat' | 'history' | 'tasks' | 'knowledge' | 'admin';
+type IconProps = { size?: number; className?: string };
 
-type Session = {
-  id: string;
-  title: string;
-  type: Mode;
-  pinned?: boolean;
-  preview: string;
-  time: string;
-  count: number;
-};
+const iconStroke = { fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' } as const;
+const makeIcon =
+  (children: React.ReactNode) =>
+  ({ size = 20, className }: IconProps) => (
+    <svg className={className} width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      {children}
+    </svg>
+  );
 
-type KnowledgeBase = {
-  id: string;
-  name: string;
-  desc: string;
-  files: number;
-  owner: string;
-  status: 'ready' | 'processing';
-};
+const Search = makeIcon(
+  <>
+    <circle cx="11" cy="11" r="7" {...iconStroke} />
+    <path d="m16.5 16.5 4 4" {...iconStroke} />
+  </>
+);
+const Plus = makeIcon(<path d="M12 5v14M5 12h14" {...iconStroke} />);
+const Bell = makeIcon(
+  <>
+    <path d="M6 9a6 6 0 1 1 12 0c0 7 3 6 3 8H3c0-2 3-1 3-8" {...iconStroke} />
+    <path d="M10 21h4" {...iconStroke} />
+  </>
+);
+const FileText = makeIcon(
+  <>
+    <path d="M6 3h8l4 4v14H6z" {...iconStroke} />
+    <path d="M14 3v5h5M9 13h6M9 17h4" {...iconStroke} />
+  </>
+);
+const Square = makeIcon(<rect x="5" y="5" width="14" height="14" rx="2" {...iconStroke} />);
+const Bot = makeIcon(
+  <>
+    <rect x="5" y="8" width="14" height="11" rx="4" {...iconStroke} />
+    <path d="M12 4v4M9 13h.01M15 13h.01M10 17h4" {...iconStroke} />
+  </>
+);
+const BookOpen = makeIcon(
+  <>
+    <path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22z" {...iconStroke} />
+    <path d="M4 5.5V22M12 2v17" {...iconStroke} />
+  </>
+);
+const MessageCircle = makeIcon(
+  <>
+    <path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.1-5.2A8.5 8.5 0 1 1 21 11.5Z" {...iconStroke} />
+  </>
+);
+const Clock3 = makeIcon(
+  <>
+    <circle cx="12" cy="12" r="9" {...iconStroke} />
+    <path d="M12 7v5l3 2" {...iconStroke} />
+  </>
+);
+const Menu = makeIcon(<path d="M4 7h16M4 12h16M4 17h16" {...iconStroke} />);
+const X = makeIcon(<path d="M6 6l12 12M18 6 6 18" {...iconStroke} />);
+const ChevronDown = makeIcon(<path d="m6 9 6 6 6-6" {...iconStroke} />);
+const ChevronLeft = makeIcon(<path d="m15 18-6-6 6-6" {...iconStroke} />);
+const ChevronRight = makeIcon(<path d="m9 18 6-6-6-6" {...iconStroke} />);
+const Send = makeIcon(
+  <>
+    <path d="M22 2 11 13" {...iconStroke} />
+    <path d="m22 2-7 20-4-9-9-4z" {...iconStroke} />
+  </>
+);
+const Copy = makeIcon(
+  <>
+    <rect x="8" y="8" width="12" height="12" rx="2" {...iconStroke} />
+    <path d="M4 16V6a2 2 0 0 1 2-2h10" {...iconStroke} />
+  </>
+);
+const Download = makeIcon(<path d="M12 3v12m0 0 5-5m-5 5-5-5M5 21h14" {...iconStroke} />);
+const Globe2 = makeIcon(
+  <>
+    <circle cx="12" cy="12" r="9" {...iconStroke} />
+    <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" {...iconStroke} />
+  </>
+);
+const Filter = makeIcon(<path d="M4 5h16M7 12h10M10 19h4" {...iconStroke} />);
+const RotateCw = makeIcon(<path d="M21 12a9 9 0 1 1-3-6.7M21 3v6h-6" {...iconStroke} />);
+const Edit3 = makeIcon(<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" {...iconStroke} />);
+const Circle = makeIcon(<circle cx="12" cy="12" r="8" {...iconStroke} />);
+const Trash2 = makeIcon(<path d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3" {...iconStroke} />);
+const MoreHorizontal = makeIcon(<path d="M6 12h.01M12 12h.01M18 12h.01" {...iconStroke} />);
+const Upload = makeIcon(<path d="M12 16V4m0 0-5 5m5-5 5 5M4 20h16" {...iconStroke} />);
 
-type Task = {
-  name: string;
-  focus: string;
-  frequency: string;
-  rounds: number;
-  latest: string;
-  next: string;
-  status: 'enabled' | 'disabled' | 'abnormal';
-};
+type View = 'home' | 'chat' | 'history' | 'tasks' | 'knowledge' | 'kbDetail' | 'admin';
+type Agent = 'secretary' | 'badchild';
+type Modal = null | 'kbPicker' | 'taskConfig' | 'createKb' | 'upload' | 'report' | 'template';
 
-const sessions: Session[] = [
-  {
-    id: 's1',
-    title: '麦角硫因功效综述',
-    type: 'secretary',
-    pinned: true,
-    preview: '已检索配方库、实验报告与法规条款',
-    time: '刚刚',
-    count: 18
-  },
-  {
-    id: 's2',
-    title: '外泌体技术迁移',
-    type: 'badchild',
-    pinned: true,
-    preview: '生成创新路径与风险初判报告',
-    time: '12分钟前',
-    count: 9
-  },
-  {
-    id: 's3',
-    title: '透明质酸口服趋势',
-    type: 'badchild',
-    preview: '正在整理专利空白与竞品布局',
-    time: '2小时前',
-    count: 12
-  },
-  {
-    id: 's4',
-    title: '功效宣称内部规范',
-    type: 'secretary',
-    preview: '引用《化妆品功效宣称评价规范》',
-    time: '2026-06-20',
-    count: 7
-  }
+const conversations = [
+  '对话5-知识检索XXX...',
+  '对话5-情报监测XXX...',
+  '对话5-创新探索XXX...',
+  '对话5-XXXXXXXXX...',
+  '对话5-XXXXXXXXX...',
+  '对话5-XXXXXXXXX...',
+  '对话5-XXXXXXXXX...',
+  '对话5-XXXXXXXXX...'
 ];
 
-const knowledgeBases: KnowledgeBase[] = [
-  { id: 'kb1', name: '合成生物学研发库', desc: '菌株构建、发酵工艺、活性物质生产资料', files: 1286, owner: '研发中心', status: 'ready' },
-  { id: 'kb2', name: '皮肤科学临床证据库', desc: '功效评估、临床数据、人体试验报告', files: 842, owner: '功效评价部', status: 'processing' },
-  { id: 'kb3', name: '法规与竞品情报库', desc: '国内外政策、备案、竞品专利与新闻', files: 611, owner: '战略情报组', status: 'ready' }
+const taskRows = [
+  { title: '抗衰老技术领域月度情报', badge: '有新报告', status: '运行中', color: 'green' },
+  { title: '定时任务222222', status: '异常（1次任务执行失败）', color: 'orange' },
+  { title: '定时任务333333', status: '运行中', color: 'green' }
 ];
 
-const tasks: Task[] = [
-  {
-    name: '麦角硫因最新数据周报',
-    focus: '专利、论文、法规、竞品动态',
-    frequency: '每周一 09:00',
-    rounds: 8,
-    latest: '2026-06-22 09:00',
-    next: '2026-06-29 09:00',
-    status: 'enabled'
-  },
-  {
-    name: '重组胶原蛋白法规日报',
-    focus: '中国、欧盟、东南亚法规更新',
-    frequency: '每天 08:00',
-    rounds: 31,
-    latest: '2026-06-22 08:00',
-    next: '2026-06-23 08:00',
-    status: 'enabled'
-  },
-  {
-    name: '外泌体护肤专利监测',
-    focus: '国际申请、竞品布局、技术路线',
-    frequency: '每周五 10:00',
-    rounds: 3,
-    latest: '2026-06-19 10:00',
-    next: '待恢复',
-    status: 'abnormal'
-  }
-];
+const kbCards = Array.from({ length: 6 }, (_, index) => ({
+  title: '知识库1',
+  owner: 'wangdazhuang',
+  files: 16,
+  desc: '一段介绍一段介绍一段介绍一段介绍一段介绍一段介绍一段介绍一段介绍一段介绍一段介绍一段介绍一段介绍...'
+}));
 
-const sources = [
-  {
-    title: '麦角硫因功效验证实验报告_2025.pdf',
-    source: '知识库',
-    meta: '研发中心 · 2025-11-18 · DOI: 10.1249/HY.2025.031'
-  },
-  {
-    title: '皮肤屏障修护机制综述.docx',
-    source: '知识库',
-    meta: '功效评价部 · 2026-02-02 · DOI: 10.2147/BARRIER.116'
-  },
-  {
-    title: 'Global EGT skincare patent trend',
-    source: 'patentscope.wipo.int',
-    meta: 'WIPO · 2026-05-09 · DOI: 10.6060/WIPO.EGT'
-  }
-];
-
-const journey = [
-  { label: '需求解析', desc: '识别原料、功效、应用场景', done: true },
-  { label: '信息检索', desc: '搜索引擎 + 企业知识库并行召回', done: true },
-  { label: '资料整理', desc: '按可信度、时间热度、权威度重排', done: true },
-  { label: '报告生成', desc: '组织技术综述与创新机会', done: false }
+const fileRows = [
+  { name: '蛋白设计方案.docx', status: '未处理', progress: 0, tone: 'gray' },
+  { name: '蛋白设计方案.pdf', status: '处理中', progress: 50, tone: 'blue' },
+  { name: '蛋白设计方案.pdf', status: '处理完成', progress: 100, tone: 'blue' },
+  { name: '蛋白设计方案.pdf', status: '处理失败', progress: 60, tone: 'orange' }
 ];
 
 function App() {
-  const [view, setView] = useState<View>('chat');
-  const [mode, setMode] = useState<Mode>('secretary');
-  const [activeSession, setActiveSession] = useState(sessions[0].id);
-  const [query, setQuery] = useState('');
-  const [searchText, setSearchText] = useState('');
-  const [drawerOpen, setDrawerOpen] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 1180);
-  const [kbModalOpen, setKbModalOpen] = useState(false);
+  const [view, setView] = useState<View>('home');
+  const [agent, setAgent] = useState<Agent>('secretary');
+  const [modal, setModal] = useState<Modal>(null);
+  const [citationOpen, setCitationOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [smartSearch, setSmartSearch] = useState(false);
-  const [selectedKbs, setSelectedKbs] = useState(['kb1', 'kb2']);
-  const [scene, setScene] = useState('技术综述');
-  const [style, setStyle] = useState('严谨');
+  const [historySearch, setHistorySearch] = useState('');
+  const filteredConversations = useMemo(
+    () => conversations.filter((item) => item.toLowerCase().includes(historySearch.toLowerCase())),
+    [historySearch]
+  );
 
-  const filteredSessions = useMemo(() => {
-    const key = searchText.trim().toLowerCase();
-    const list = key ? sessions.filter((item) => item.title.toLowerCase().includes(key)) : sessions;
-    return [...list].sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)));
-  }, [searchText]);
-
-  const currentSession = sessions.find((item) => item.id === activeSession) ?? sessions[0];
-  const currentMode = mode || currentSession.type;
-
-  const chooseSession = (session: Session) => {
-    setActiveSession(session.id);
-    setMode(session.type);
-    setView('chat');
+  const openView = (next: View) => {
+    setView(next);
     setMobileMenuOpen(false);
   };
 
-  const send = () => {
-    if (!query.trim()) return;
-    setQuery('');
-    setView('chat');
+  const startAgent = (next: Agent) => {
+    setAgent(next);
+    setView('home');
   };
 
   return (
-    <div className="app-shell">
-      <aside className="global-rail" aria-label="全局导航">
-        <div className="brand-mark" aria-label="华熙AI">
-          HX
-        </div>
-        <button className="rail-button active" aria-label="AI助手">
-          <Bot size={21} />
-        </button>
-        <button className="rail-button" aria-label="知识库">
-          <Database size={21} />
-        </button>
-        <button className="rail-button" aria-label="消息">
-          <BellRing size={21} />
-        </button>
-        <button className="rail-button rail-bottom" aria-label="设置">
-          <Settings2 size={21} />
-        </button>
-      </aside>
-
-      <aside className={`workspace-sidebar ${mobileMenuOpen ? 'open' : ''}`}>
-        <div className="sidebar-head">
-          <div>
-            <p className="eyebrow">华熙生物</p>
-            <h1>AI知识助手</h1>
-          </div>
-          <button className="icon-button hide-desktop" aria-label="关闭菜单" onClick={() => setMobileMenuOpen(false)}>
-            <X size={18} />
-          </button>
-        </div>
-
-        <button className="new-chat-button" onClick={() => setView('chat')}>
-          <MessageSquarePlus size={18} />
-          新建会话
-        </button>
-
-        <nav className="nav-list" aria-label="应用导航">
-          <NavItem icon={<LayoutDashboard size={18} />} label="会话工作台" active={view === 'chat'} onClick={() => setView('chat')} />
-          <NavItem icon={<Clock3 size={18} />} label="历史对话" active={view === 'history'} onClick={() => setView('history')} />
-          <NavItem icon={<BellRing size={18} />} label="定时任务" active={view === 'tasks'} onClick={() => setView('tasks')} />
-          <NavItem icon={<FolderCog size={18} />} label="知识库管理" active={view === 'knowledge'} onClick={() => setView('knowledge')} />
-          <NavItem icon={<BarChart3 size={18} />} label="管理员应用" active={view === 'admin'} onClick={() => setView('admin')} />
-        </nav>
-
-        <div className="session-search">
-          <Search size={16} />
-          <label className="sr-only" htmlFor="session-search">
-            搜索会话名称
-          </label>
-          <input id="session-search" value={searchText} onChange={(event) => setSearchText(event.target.value)} placeholder="搜索会话名称" />
-          {searchText && (
-            <button aria-label="清空搜索" onClick={() => setSearchText('')}>
-              <X size={14} />
-            </button>
-          )}
-        </div>
-
-        <div className="session-list" aria-label="历史会话">
-          {filteredSessions.map((session) => (
-            <button key={session.id} className={`session-card ${activeSession === session.id ? 'selected' : ''}`} onClick={() => chooseSession(session)}>
-              <span className={`mode-dot ${session.type}`} />
-              <span className="session-main">
-                <span className="session-title">
-                  {session.pinned && <Pin size={13} />}
-                  {highlight(session.title, searchText)}
-                </span>
-                <span className="session-preview">{session.preview}</span>
-              </span>
-              <span className="session-time">{session.time}</span>
-            </button>
-          ))}
-        </div>
-      </aside>
-
-      <main className="main-stage">
-        <header className="topbar">
-          <button className="icon-button hide-desktop" aria-label="打开菜单" onClick={() => setMobileMenuOpen(true)}>
-            <Menu size={20} />
-          </button>
-          <div className="page-title">
-            <p>{viewLabel(view)}</p>
-            <strong>{view === 'chat' ? currentSession.title : '华熙AI研发知识工作台'}</strong>
-          </div>
-          <div className="topbar-actions">
-            <button className="ghost-button">
-              <ShieldCheck size={16} />
-              企业私有知识
-            </button>
-            <button className="icon-button" aria-label="打开来源抽屉" onClick={() => setDrawerOpen(!drawerOpen)}>
-              <PanelRightOpen size={19} />
-            </button>
-          </div>
-        </header>
-
-        {view === 'chat' && (
-          <ChatView
-            mode={currentMode}
-            setMode={setMode}
-            query={query}
-            setQuery={setQuery}
-            send={send}
-            drawerOpen={drawerOpen}
-            setDrawerOpen={setDrawerOpen}
-            setKbModalOpen={setKbModalOpen}
-            smartSearch={smartSearch}
-            setSmartSearch={setSmartSearch}
-            selectedKbs={selectedKbs}
-            scene={scene}
-            setScene={setScene}
-            style={style}
-            setStyle={setStyle}
-          />
-        )}
-        {view === 'history' && <HistoryView sessions={filteredSessions} chooseSession={chooseSession} />}
-        {view === 'tasks' && <TasksView />}
-        {view === 'knowledge' && <KnowledgeView />}
-        {view === 'admin' && <AdminView />}
-      </main>
-
-      {view === 'chat' && drawerOpen && <SourceDrawer onClose={() => setDrawerOpen(false)} />}
-      {kbModalOpen && <KnowledgeModal selectedKbs={selectedKbs} setSelectedKbs={setSelectedKbs} onClose={() => setKbModalOpen(false)} />}
-    </div>
-  );
-}
-
-function NavItem({ icon, label, active, onClick }: { icon: React.ReactNode; label: string; active: boolean; onClick: () => void }) {
-  return (
-    <button className={`nav-item ${active ? 'active' : ''}`} onClick={onClick}>
-      {icon}
-      {label}
-    </button>
-  );
-}
-
-function ChatView({
-  mode,
-  setMode,
-  query,
-  setQuery,
-  send,
-  drawerOpen,
-  setDrawerOpen,
-  setKbModalOpen,
-  smartSearch,
-  setSmartSearch,
-  selectedKbs,
-  scene,
-  setScene,
-  style,
-  setStyle
-}: {
-  mode: Mode;
-  setMode: (mode: Mode) => void;
-  query: string;
-  setQuery: (query: string) => void;
-  send: () => void;
-  drawerOpen: boolean;
-  setDrawerOpen: (open: boolean) => void;
-  setKbModalOpen: (open: boolean) => void;
-  smartSearch: boolean;
-  setSmartSearch: (open: boolean) => void;
-  selectedKbs: string[];
-  scene: string;
-  setScene: (scene: string) => void;
-  style: string;
-  setStyle: (style: string) => void;
-}) {
-  return (
-    <section className={`chat-layout ${drawerOpen ? 'with-drawer' : ''}`}>
-      <div className="chat-column">
-        <div className="agent-hero">
-          <AssistantAvatar mode={mode} />
-          <div>
-            <p className="eyebrow">{mode === 'secretary' ? '小秘书 · 精准知识检索' : '坏孩子 · 创新探索'}</p>
-            <h2>{mode === 'secretary' ? '严格基于已知事实作答，句句可溯源' : '用 DeepResearch 跑完从假设到报告的研究闭环'}</h2>
-            <p className="hero-copy">
-              {mode === 'secretary'
-                ? '接入企业知识库、临时文件与智能搜索，适合内部实验记录、法规规范、技术文档问答。'
-                : '面向开放性研发问题，自动拆解意图、并行检索、整理证据并输出方向洞察或科普报告。'}
-            </p>
-          </div>
-          <ModeSwitch mode={mode} setMode={setMode} />
-        </div>
-
-        <div className="conversation">
-          <Message role="user" text={mode === 'secretary' ? '请梳理麦角硫因在皮肤抗氧化方向的内部验证结论。' : '外泌体技术迁移到功效护肤有哪些可行路径？'} />
-          {mode === 'secretary' ? <SecretaryAnswer setDrawerOpen={setDrawerOpen} /> : <BadChildAnswer />}
-        </div>
-
-        <Composer
-          mode={mode}
-          query={query}
-          setQuery={setQuery}
-          send={send}
-          setKbModalOpen={setKbModalOpen}
-          smartSearch={smartSearch}
-          setSmartSearch={setSmartSearch}
-          selectedKbs={selectedKbs}
-          scene={scene}
-          setScene={setScene}
-          style={style}
-          setStyle={setStyle}
-        />
-      </div>
-    </section>
-  );
-}
-
-function AssistantAvatar({ mode }: { mode: Mode }) {
-  return (
-    <div className={`assistant-avatar ${mode}`} aria-hidden="true">
-      <div className="avatar-hair" />
-      <div className="avatar-face">
-        <span />
-        <span />
-      </div>
-      <div className="avatar-coat" />
-      <div className="avatar-spark">
-        <Sparkles size={15} />
-      </div>
-    </div>
-  );
-}
-
-function ModeSwitch({ mode, setMode }: { mode: Mode; setMode: (mode: Mode) => void }) {
-  return (
-    <div className="mode-switch" role="tablist" aria-label="智能体切换">
-      <button className={mode === 'secretary' ? 'active' : ''} onClick={() => setMode('secretary')} role="tab" aria-selected={mode === 'secretary'}>
-        <Bot size={16} />
-        小秘书
-      </button>
-      <button className={mode === 'badchild' ? 'active' : ''} onClick={() => setMode('badchild')} role="tab" aria-selected={mode === 'badchild'}>
-        <BrainCircuit size={16} />
-        坏孩子
-      </button>
-    </div>
-  );
-}
-
-function Message({ role, text }: { role: 'user' | 'assistant'; text: string }) {
-  return (
-    <div className={`message ${role}`}>
-      <div className="bubble">{text}</div>
-    </div>
-  );
-}
-
-function SecretaryAnswer({ setDrawerOpen }: { setDrawerOpen: (open: boolean) => void }) {
-  return (
-    <div className="message assistant">
-      <div className="answer-card">
-        <div className="answer-head">
-          <span className="status-chip blue">
-            <CheckCircle2 size={15} />
-            已完成
-          </span>
-          <div className="answer-actions">
-            <button>
-              <Clipboard size={15} />
-              复制
-            </button>
-            <button onClick={() => setDrawerOpen(true)}>
-              <Search size={15} />
-              搜索结果
-            </button>
-          </div>
-        </div>
-        <p>
-          内部资料显示，麦角硫因在皮肤抗氧化方向的验证重点集中在降低 ROS 累积、缓解 UVB 诱导的炎症因子释放、增强屏障修护相关指标三类。
-          <SourceTag index={1} />
-        </p>
-        <p>
-          现有配方测试中，0.05%-0.2% 添加区间对细胞保护效果更稳定；若与透明质酸体系复配，建议优先验证水相稳定性与长期色泽变化。
-          <SourceTag index={2} />
-        </p>
-        <div className="evidence-grid">
-          <Evidence label="召回文档" value="26" />
-          <Evidence label="平均置信度" value="91%" />
-          <Evidence label="最新来源" value="2026-05" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function SourceTag({ index }: { index: number }) {
-  return (
-    <span className="source-tag" tabIndex={0}>
-      [{index}]
-      <span className="source-popover">
-        <strong>{sources[index - 1].title}</strong>
-        <small>{sources[index - 1].meta}</small>
-        <button>
-          查看原文
-          <ExternalLink size={13} />
-        </button>
-      </span>
-    </span>
-  );
-}
-
-function Evidence({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
-  );
-}
-
-function BadChildAnswer() {
-  return (
-    <div className="message assistant">
-      <div className="answer-card badchild-card">
-        <div className="research-path">
-          {journey.map((step, index) => (
-            <div className={`path-step ${step.done ? 'done' : 'running'}`} key={step.label}>
-              <span>{step.done ? <CheckCircle2 size={16} /> : <Activity size={16} />}</span>
-              <div>
-                <strong>{index + 1}. {step.label}</strong>
-                <small>{step.desc}</small>
-              </div>
-            </div>
-          ))}
-        </div>
-        <h3>外泌体技术迁移到功效护肤的三条机会路径</h3>
-        <p>
-          初步判断，最具落地性的方向是屏障修护信号递送、炎症微环境调节、以及与透明质酸/胶原体系的复合载体开发。近期布局应先做安全边界、来源一致性和功效宣称合规评估。
-        </p>
-        <div className="report-card">
-          <FileText size={28} />
-          <div>
-            <strong>外泌体护肤创新路径规划报告</strong>
-            <span>Markdown 预览 · 17 页 · 参考文献 42 条</span>
-          </div>
-          <button>
-            <Download size={16} />
-            下载
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Composer({
-  mode,
-  query,
-  setQuery,
-  send,
-  setKbModalOpen,
-  smartSearch,
-  setSmartSearch,
-  selectedKbs,
-  scene,
-  setScene,
-  style,
-  setStyle
-}: {
-  mode: Mode;
-  query: string;
-  setQuery: (query: string) => void;
-  send: () => void;
-  setKbModalOpen: (open: boolean) => void;
-  smartSearch: boolean;
-  setSmartSearch: (open: boolean) => void;
-  selectedKbs: string[];
-  scene: string;
-  setScene: (scene: string) => void;
-  style: string;
-  setStyle: (style: string) => void;
-}) {
-  return (
-    <div className="composer">
-      <label className="sr-only" htmlFor="chat-input">
-        输入会话信息
-      </label>
-      <textarea
-        id="chat-input"
-        value={query}
-        onChange={(event) => setQuery(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.ctrlKey && event.key === 'Enter') send();
-        }}
-        placeholder={mode === 'secretary' ? '问问内部实验、配方、法规或临床资料...' : '输入一个开放式探索问题，例如“抗衰方向还有哪些技术空白？”'}
+    <div className="prototype-shell">
+      <FeishuRail />
+      <AppSidebar
+        view={view}
+        agent={agent}
+        conversations={filteredConversations}
+        openView={openView}
+        startAgent={startAgent}
+        mobileMenuOpen={mobileMenuOpen}
+        closeMobileMenu={() => setMobileMenuOpen(false)}
       />
-      <div className="composer-tools">
-        <button className={smartSearch ? 'tool active' : 'tool'} onClick={() => setSmartSearch(!smartSearch)}>
-          <Globe2 size={16} />
-          智能搜索
-        </button>
-        <button className="tool" onClick={() => setKbModalOpen(true)}>
-          <BookOpen size={16} />
-          知识库({selectedKbs.length})
-        </button>
-        {mode === 'secretary' && (
-          <button className="tool">
-            <UploadCloud size={16} />
-            临时文件
+      <main className={`workspace ${citationOpen && view === 'chat' ? 'has-citation' : ''}`}>
+        <div className="mobile-topbar">
+          <button className="mobile-menu" aria-label="打开菜单" onClick={() => setMobileMenuOpen(true)}>
+            <Menu size={22} />
           </button>
-        )}
-        <SelectPill value={scene} options={mode === 'secretary' ? ['技术综述'] : ['技术综述', '方向洞察', '科学传播']} onChange={setScene} icon={<Zap size={16} />} />
-        {mode === 'badchild' && scene === '科学传播' && <SelectPill value={style} options={['通用', '严谨']} onChange={setStyle} icon={<Sparkles size={16} />} />}
-        <button className="pause-button" aria-label="暂停生成">
-          <CirclePause size={18} />
-        </button>
-        <button className="send-button" onClick={send} aria-label="发送消息">
-          <SendHorizontal size={20} />
-        </button>
-      </div>
+          <div className="mobile-brand">
+            <RobotFace small />
+            <strong>华熙AI知识助手</strong>
+          </div>
+          <button className="mobile-new" aria-label="新建会话" onClick={() => openView('home')}>
+            <Plus size={22} />
+          </button>
+        </div>
+        {view === 'home' && <HomeView agent={agent} setAgent={setAgent} setModal={setModal} />}
+        {view === 'chat' && <ChatView agent={agent} setAgent={setAgent} setModal={setModal} setCitationOpen={setCitationOpen} />}
+        {view === 'history' && <HistoryView search={historySearch} setSearch={setHistorySearch} />}
+        {view === 'tasks' && <TasksView setModal={setModal} />}
+        {view === 'knowledge' && <KnowledgeView setView={setView} setModal={setModal} />}
+        {view === 'kbDetail' && <KnowledgeDetail setView={setView} setModal={setModal} />}
+        {view === 'admin' && <AdminView setModal={setModal} />}
+      </main>
+      {citationOpen && view === 'chat' && <CitationDrawer onClose={() => setCitationOpen(false)} />}
+      {modal && <ModalLayer type={modal} close={() => setModal(null)} />}
     </div>
   );
 }
 
-function SelectPill({ value, options, onChange, icon }: { value: string; options: string[]; onChange: (value: string) => void; icon: React.ReactNode }) {
+function FeishuRail() {
+  const rail = [
+    { label: '搜索', icon: <Search size={23} /> },
+    { label: '新建', icon: <Plus size={24} /> },
+    { label: '消息', icon: <Bell size={21} /> },
+    { label: '云文档', icon: <FileText size={20} /> },
+    { label: '多维表格', icon: <Square size={20} /> },
+    { label: '工作台', icon: <GridMark /> },
+    { label: '通讯录', icon: <Bot size={20} /> },
+    { label: '更多', icon: <BookOpen size={19} /> },
+    { label: '不重要', icon: <Circle size={18} /> }
+  ];
+
   return (
-    <label className="select-pill">
-      {icon}
-      <span className="sr-only">选择模板</span>
-      <select value={value} onChange={(event) => onChange(event.target.value)}>
-        {options.map((option) => (
-          <option key={option}>{option}</option>
-        ))}
-      </select>
-      <ChevronDown size={14} />
-    </label>
+    <aside className="feishu-rail" aria-label="飞书导航">
+      <div className="mac-dots">
+        <i />
+        <i />
+        <i />
+      </div>
+      <div className="user-avatar" />
+      {rail.map((item) => (
+        <button key={item.label} className={`feishu-item ${item.label === '工作台' ? 'active' : ''}`} aria-label={item.label}>
+          {item.icon}
+          <span>{item.label}</span>
+        </button>
+      ))}
+    </aside>
   );
 }
 
-function SourceDrawer({ onClose }: { onClose: () => void }) {
+function AppSidebar({
+  view,
+  agent,
+  conversations,
+  openView,
+  startAgent,
+  mobileMenuOpen,
+  closeMobileMenu
+}: {
+  view: View;
+  agent: Agent;
+  conversations: string[];
+  openView: (view: View) => void;
+  startAgent: (agent: Agent) => void;
+  mobileMenuOpen: boolean;
+  closeMobileMenu: () => void;
+}) {
   return (
-    <aside className="source-drawer" aria-label="搜索结果">
-      <div className="drawer-head">
-        <div>
-          <p className="eyebrow">本轮检索</p>
-          <h2>搜索结果</h2>
-        </div>
-        <button className="icon-button" aria-label="关闭来源抽屉" onClick={onClose}>
+    <aside className={`app-sidebar ${mobileMenuOpen ? 'open' : ''}`}>
+      <div className="app-title">
+        <RobotFace small />
+        <strong>华熙AI知识助手</strong>
+        <button aria-label="关闭移动菜单" className="sidebar-close" onClick={closeMobileMenu}>
           <X size={18} />
         </button>
+        <Menu size={20} className="desktop-collapse" />
       </div>
-      <div className="source-summary">
-        <strong>26</strong>
-        <span>条召回结果，已按相关性、权威度和时间热度重排。</span>
-      </div>
-      <div className="source-list">
-        {sources.map((source, index) => (
-          <button key={source.title} className="source-item">
-            <span>{index + 1}</span>
-            <div>
-              <strong>{source.title}</strong>
-              <small>{source.source}</small>
-              <em>{source.meta}</em>
-            </div>
-            <ExternalLink size={16} />
+      <nav className="side-nav" aria-label="AI助手导航">
+        <button className={view === 'home' ? 'active' : ''} onClick={() => openView('home')}>
+          <MessageCircle size={16} />
+          新建会话
+        </button>
+        <button className={view === 'tasks' ? 'active' : ''} onClick={() => openView('tasks')}>
+          <Clock3 size={17} />
+          定时任务
+        </button>
+        <button className={view === 'knowledge' || view === 'kbDetail' ? 'active' : ''} onClick={() => openView('knowledge')}>
+          <BookOpen size={16} />
+          知识库
+        </button>
+        <button className={view === 'history' ? 'active' : ''} onClick={() => openView('history')}>
+          <Clock3 size={16} />
+          历史会话
+        </button>
+      </nav>
+      <div className="side-history">
+        {conversations.map((item) => (
+          <button key={item} onClick={() => openView('chat')}>
+            {item}
           </button>
         ))}
+      </div>
+      <button className="all-history" onClick={() => openView('history')}>
+        全部会话 <span>&gt;&gt;</span>
+      </button>
+      <div className="agent-shortcuts">
+        <button onClick={() => openView('admin')}>管理端</button>
       </div>
     </aside>
   );
 }
 
-function KnowledgeModal({ selectedKbs, setSelectedKbs, onClose }: { selectedKbs: string[]; setSelectedKbs: (ids: string[]) => void; onClose: () => void }) {
-  const toggle = (id: string) => {
-    setSelectedKbs(selectedKbs.includes(id) ? selectedKbs.filter((item) => item !== id) : [...selectedKbs, id]);
-  };
-
+function HomeView({ agent, setAgent, setModal }: { agent: Agent; setAgent: (agent: Agent) => void; setModal: (modal: Modal) => void }) {
   return (
-    <div className="modal-backdrop" role="presentation">
-      <section className="modal" role="dialog" aria-modal="true" aria-labelledby="kb-title">
-        <div className="modal-head">
-          <div>
-            <p className="eyebrow">工具配置</p>
-            <h2 id="kb-title">选择知识库</h2>
-          </div>
-          <button className="icon-button" aria-label="关闭弹窗" onClick={onClose}>
-            <X size={18} />
-          </button>
-        </div>
-        <div className="kb-picker">
-          <div className="kb-options">
-            {knowledgeBases.map((kb) => (
-              <label key={kb.id} className="kb-option">
-                <input type="checkbox" checked={selectedKbs.includes(kb.id)} onChange={() => toggle(kb.id)} />
-                <span>
-                  <strong>{kb.name}</strong>
-                  <small>{kb.files} 个文件 · {kb.owner}</small>
-                </span>
-              </label>
-            ))}
-          </div>
-          <div className="kb-picked">
-            <h3>已选汇总</h3>
-            <strong>{selectedKbs.length} 个知识库</strong>
-            <p>配置确认后，将对当前会话后续问题实时生效，历史答案不受影响。</p>
-          </div>
-        </div>
-        <footer className="modal-actions">
-          <button className="ghost-button" onClick={onClose}>取消</button>
-          <button className="primary-button" onClick={onClose}>确认</button>
-        </footer>
-      </section>
+    <section className="home-stage">
+      <RobotFace />
+      <p className="assistant-line">
+        {agent === 'secretary'
+          ? '你好,我是华熙小秘书,我擅长从公司内部知识库中最快找到答案'
+          : '我是华熙坏孩子，我能够对开放性问题进行创新探索'}
+      </p>
+      <PromptBox agent={agent} setAgent={setAgent} setModal={setModal} />
+      <SuggestionList agent={agent} />
+    </section>
+  );
+}
+
+function PromptBox({
+  agent,
+  setAgent,
+  setModal,
+  compact
+}: {
+  agent: Agent;
+  setAgent: (agent: Agent) => void;
+  setModal: (modal: Modal) => void;
+  compact?: boolean;
+}) {
+  return (
+    <div className={`prompt-box ${compact ? 'compact' : ''}`}>
+      <div className="prompt-line">
+        <AgentPill agent={agent} setAgent={setAgent} />
+        <span className="placeholder">
+          {agent === 'secretary'
+            ? '用自然语言提问，AI将理解您的意图，并从公司内部研发报告、实验数据中找到最相关的答案。'
+            : '输入一个开放性问题，AI将连接不同领域的知识图谱,生成技术综述并启发创新方向。'}
+        </span>
+      </div>
+      <div className="prompt-tools">
+        {agent === 'secretary' ? (
+          <>
+            <button className="icon-chip">
+              <LinkGlyph />
+            </button>
+            <button className="tool-chip">
+              <Bot size={15} />
+              智能搜索
+            </button>
+            <button className="tool-chip" onClick={() => setModal('kbPicker')}>
+              <Bot size={15} />
+              知识库
+            </button>
+            <button className="tool-chip">
+              技术综述
+              <ChevronDown size={14} />
+            </button>
+          </>
+        ) : (
+          <>
+            <button className="tool-chip" onClick={() => setModal('kbPicker')}>
+              <Bot size={15} />
+              知识库
+            </button>
+            <button className="tool-chip">
+              科学洞察
+              <ChevronDown size={14} />
+            </button>
+            <button className="tool-chip">
+              风格设定
+              <ChevronDown size={14} />
+            </button>
+          </>
+        )}
+        <button className="send-circle" aria-label="发送">
+          <Send size={24} />
+        </button>
+      </div>
     </div>
   );
 }
 
-function HistoryView({ sessions, chooseSession }: { sessions: Session[]; chooseSession: (session: Session) => void }) {
+function AgentPill({ agent, setAgent }: { agent: Agent; setAgent: (agent: Agent) => void }) {
   return (
-    <section className="content-view">
-      <div className="section-head">
-        <div>
-          <p className="eyebrow">会话管理</p>
-          <h2>全部历史对话</h2>
+    <button className="agent-pill" onClick={() => setAgent(agent === 'secretary' ? 'badchild' : 'secretary')}>
+      <Bot size={15} />
+      {agent === 'secretary' ? '小秘书' : '坏孩子'}
+      <RotateCw size={14} className="swap" />
+    </button>
+  );
+}
+
+function SuggestionList({ agent }: { agent: Agent }) {
+  if (agent === 'badchild') {
+    return (
+      <div className="suggestion-area badchild">
+        <span>试试这些示例:</span>
+        <div className="report-suggestions">
+          {[1, 2, 3].map((item) => (
+            <button key={item} className="report-suggestion">
+              <ReportIcon />
+              XXX创新探索分析
+            </button>
+          ))}
         </div>
-        <button className="primary-button">
-          <Plus size={16} />
-          新建会话
-        </button>
       </div>
-      <div className="history-grid">
-        {sessions.map((session) => (
-          <article className="history-card" key={session.id} onClick={() => chooseSession(session)}>
-            <div className="history-card-head">
-              <span className={`mode-label ${session.type}`}>{session.type === 'secretary' ? '小秘书' : '坏孩子'}</span>
-              <button className="icon-button" aria-label="更多操作">
-                <MoreHorizontal size={18} />
+    );
+  }
+
+  return (
+    <div className="suggestion-area">
+      <span>试试这些示例:</span>
+      <button>帮我找出麦角硫因稳定性相关数据</button>
+      <button>帮我找出麦角硫因稳定性相关数据帮我找出麦角硫因稳定性相关数据帮我找出麦角硫因稳定性相关数据</button>
+      <button>帮我找出麦角硫因稳定性相关数据</button>
+    </div>
+  );
+}
+
+function ChatView({
+  agent,
+  setAgent,
+  setModal,
+  setCitationOpen
+}: {
+  agent: Agent;
+  setAgent: (agent: Agent) => void;
+  setModal: (modal: Modal) => void;
+  setCitationOpen: (open: boolean) => void;
+}) {
+  return (
+    <section className="chat-stage">
+      <div className="breadcrumb">
+        麦角硫因稳定性相关数据数据分析 <ChevronRight size={18} />
+      </div>
+      {agent === 'secretary' ? <SecretaryAnswer setCitationOpen={setCitationOpen} /> : <BadChildAnswer setModal={setModal} />}
+      <div className="fixed-composer">
+        <PromptBox agent={agent} setAgent={setAgent} setModal={setModal} compact />
+      </div>
+    </section>
+  );
+}
+
+function SecretaryAnswer({ setCitationOpen }: { setCitationOpen: (open: boolean) => void }) {
+  return (
+    <div className="answer-flow">
+      <div className="user-bubble">帮我找出麦角硫因稳定性相关数据</div>
+      <div className="assistant-row">
+        <RobotFace micro />
+        <div className="answer-main">
+          <p className="answer-ask">我来帮您搜索麦角硫因（Ergothioneine）稳定性相关的研究数据。</p>
+          <button className="search-strip" onClick={() => setCitationOpen(true)}>
+            <Search size={22} />
+            搜索知识库 <span>|</span> 知识库文件名.pdf
+            <strong>36个结果 &gt;</strong>
+          </button>
+          <p>根据知识库搜索结果，我为您整理了麦角硫因（Ergothioneine, EGT）的稳定性相关数据。以下是详细的技术数据汇总：</p>
+          <div className="data-card">
+            <h2>一、热稳定性数据</h2>
+            <div className="table-box">
+              <div className="table-title">
+                表格
+                <span>
+                  <Copy size={18} />
+                  <Download size={18} />
+                </span>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>温度条件</th>
+                    <th>稳定性表现</th>
+                    <th>半衰期/降解特性</th>
+                    <th>来源</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ['100°C', '符合一级反应动力学模型', '半衰期约 30分钟', 'Bing'],
+                    ['40°C', '降解速率显著减慢', '半衰期延长至 数小时', 'Bing'],
+                    ['275-276°C', '无水形式开始分解', '分解温度阈值', 'PDF | bench...'],
+                    ['长时间高温油炸', '含量有所降低', '化学键断裂导致结构改变', '2000A室内...'],
+                    ['烹饪处理', '煮沸导致显著损失，油炸损失较少', '加工方法影响保留率', 'PDF | bench...']
+                  ].map((row) => (
+                    <tr key={row[0]}>
+                      {row.map((cell, index) => (
+                        <td key={cell}>{index === 3 ? <span className="source-badge">{cell}</span> : cell}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <h2>二、关键稳定性机制</h2>
+            <p>麦角硫因的卓越稳定性主要源于其独特的互变异构现象。</p>
+            <ul>
+              <li>在生理 pH 下主要以硫酮（thione）形式存在。</li>
+              <li>硫酮形式比硫醇（thiol）形式具有更高的热稳定性和化学稳定性。</li>
+              <li>
+                该结构使其不易自动氧化，且不会促进金属离子催化的自由基生成。
+                <span className="inline-citation" onClick={() => setCitationOpen(true)}>
+                  PDF | 文件...
+                  <span className="citation-popover">
+                    <Globe2 size={17} />
+                    <strong>文章标题.pdf</strong>
+                    <small>知识库名称 ｜ 文章创建人 2025-07-16 12:13:11</small>
+                  </span>
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BadChildAnswer({ setModal }: { setModal: (modal: Modal) => void }) {
+  return (
+    <div className="answer-flow badchild-answer">
+      <div className="path-card">
+        <strong>研究完成</strong>
+        <span>我已完成了关于麦角硫因稳定性相关的科研探索。</span>
+      </div>
+      <h2>通过系统性的研究，我为您整理了一份详尽的报告。</h2>
+      <p>报告涵盖了冲突的历史背景、最新动态、各方立场、影响评估以及未来展望。</p>
+      <p>报告详细分析了从古代波斯帝国与犹太人的友好关系到现代冲突的演变过程。</p>
+      <p>最后，报告对冲突的影响进行了多维度评估，并提供了未来展望和政策建议。</p>
+      <h3>完整版报告在这里</h3>
+      <div className="report-file" onClick={() => setModal('report')}>
+        <ReportIcon />
+        <span>AI创新洞察报告:再生医...衰护肤</span>
+        <button onClick={(event) => event.stopPropagation()}>
+          <MoreHorizontal size={17} />
+        </button>
+        <div className="download-menu">
+          <button>导出为markdown</button>
+          <button>导出为PDF</button>
+          <button>导出为word</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HistoryView({ search, setSearch }: { search: string; setSearch: (search: string) => void }) {
+  return (
+    <section className="panel-page history-page">
+      <h1>历史会话</h1>
+      <div className="wide-search">
+        <Search size={21} />
+        <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="搜索历史会话" />
+        {search && <X size={18} />}
+      </div>
+      <TimelineGroup label="今天" />
+      <TimelineGroup label="本周" repeat />
+    </section>
+  );
+}
+
+function TimelineGroup({ label, repeat }: { label: string; repeat?: boolean }) {
+  const rows = repeat ? ['标题标题', '标题标题'] : ['标题标题'];
+  return (
+    <div className="timeline-group">
+      <span>{label}</span>
+      {rows.map((row, index) => (
+        <article className="history-row" key={`${label}-${index}`}>
+          <strong>{row}</strong>
+          <p>正文</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function TasksView({ setModal }: { setModal: (modal: Modal) => void }) {
+  return (
+    <section className="task-page">
+      <div className="task-hero">
+        <RobotFace />
+        <p>选择关注领域、时间范围并创建定时任务，AI将自动汇总最新的技术、法规和竞品动态。</p>
+        <div className="task-create-bar">
+          <input placeholder="在此描述您的关注领域或关注要点" />
+          <button className="select-button">
+            每天 <ChevronDown size={16} />
+          </button>
+          <button className="config-button" onClick={() => setModal('taskConfig')} aria-label="更多配置">
+            <Filter size={21} />
+          </button>
+          <button className="primary-action">发布任务</button>
+        </div>
+      </div>
+      <div className="task-list">
+        {taskRows.map((task) => (
+          <article key={task.title} className="task-card">
+            {task.badge && <span className="new-report">{task.badge}</span>}
+            <ReportIcon />
+            <div>
+              <h2>
+                {task.title}
+                <span className={`dot ${task.color}`} />
+                <em>{task.status}</em>
+              </h2>
+              <p>任务介绍任务介绍任务介绍</p>
+              <footer>频次：每周一 14:37 ｜ 已执行轮次：12 ｜ 最新执行时间：2026-3-24 ｜ 下次执行时间：2026-3-24</footer>
+            </div>
+            <div className="hover-actions">
+              <button className="tooltip">测试</button>
+              <button>
+                <RotateCw size={19} />
+              </button>
+              <button>
+                <Edit3 size={19} />
+              </button>
+              <button>
+                <Circle size={19} />
+              </button>
+              <button>
+                <Trash2 size={19} />
               </button>
             </div>
-            <h3>{session.title}</h3>
-            <p>{session.preview}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function KnowledgeView({ setView, setModal }: { setView: (view: View) => void; setModal: (modal: Modal) => void }) {
+  return (
+    <section className="knowledge-page">
+      <div className="knowledge-toolbar">
+        <button className="muted-primary" onClick={() => setModal('createKb')}>
+          创建知识库
+        </button>
+        <span />
+        <button className="sort-select">
+          按创建时间排序 <ChevronDown size={16} />
+        </button>
+        <div className="table-search">
+          <Search size={20} />
+          <input placeholder="输入知识库名称或关键词以查询" />
+        </div>
+      </div>
+      <div className="kb-grid-real">
+        {kbCards.map((card, index) => (
+          <article key={`${card.title}-${index}`} className="kb-card-real" onClick={() => setView('kbDetail')}>
+            <h2>{card.title}</h2>
+            <p>{card.desc}</p>
             <footer>
-              <span>{session.count} 条消息</span>
-              <span>{session.time}</span>
+              {card.owner} ｜ 1天前 ｜ 文件数:{card.files}
+              <span>
+                <Edit3 size={18} />
+                <Trash2 size={18} />
+              </span>
+            </footer>
+          </article>
+        ))}
+      </div>
+      <Pagination />
+    </section>
+  );
+}
+
+function KnowledgeDetail({ setView, setModal }: { setView: (view: View) => void; setModal: (modal: Modal) => void }) {
+  return (
+    <section className="kb-detail-page">
+      <div className="detail-title">
+        <button onClick={() => setView('knowledge')}>
+          <ChevronLeft size={24} />
+        </button>
+        <h1>知识库名称</h1>
+      </div>
+      <div className="file-toolbar">
+        <button className="muted-primary" onClick={() => setModal('upload')}>
+          上传文件
+        </button>
+        <button className="sort-select">
+          全部 <ChevronDown size={16} />
+        </button>
+        <div className="table-search">
+          <Search size={18} />
+          <input placeholder="输入文件名称或关键词以查询" />
+        </div>
+      </div>
+      <table className="file-table">
+        <thead>
+          <tr>
+            <th>
+              <input type="checkbox" /> 文件名称
+            </th>
+            <th>状态</th>
+            <th />
+            <th>文件来源</th>
+            <th>创建时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {fileRows.map((file) => (
+            <tr key={`${file.name}-${file.status}`}>
+              <td>
+                <input type="checkbox" /> {file.name}
+              </td>
+              <td>{file.status}</td>
+              <td>
+                <div className="mini-progress">
+                  <i className={file.tone} style={{ width: `${file.progress}%` }} />
+                </div>
+                {file.progress}%
+              </td>
+              <td>本地上传</td>
+              <td>2024/11/1 14:30:26</td>
+              <td>
+                下载 <button className="delete-link">删除</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <Pagination />
+    </section>
+  );
+}
+
+function AdminView({ setModal }: { setModal: (modal: Modal) => void }) {
+  return (
+    <section className="admin-page">
+      <h1>调用额度</h1>
+      <div className="quota-grid-real">
+        {['小秘书-联网模式', '小秘书-非联网模式', '坏孩子'].map((item) => (
+          <article className="quota-card-real" key={item}>
+            <h2>{item}</h2>
+            <div className="quota-body">
+              <div>
+                <p>
+                  已使用: <strong>78%</strong>
+                </p>
+                <hr />
+                <span>总次数&nbsp;&nbsp; 1,000,000次/年</span>
+                <span>已使用&nbsp;&nbsp; 467800</span>
+              </div>
+              <div className="donut" />
+            </div>
+          </article>
+        ))}
+      </div>
+      <div className="template-list">
+        <div className="template-head">
+          <h1>模板配置</h1>
+          <button className="muted-primary" onClick={() => setModal('template')}>
+            新建模板
+          </button>
+        </div>
+        {[1, 2].map((item) => (
+          <article className="template-item" key={item}>
+            <h2>模板111111</h2>
+            <p>提示词提示词提示词提示词提示词提示词提示词提示词提示词...</p>
+            <footer>
+              admin ｜ 1天前 ｜ 编码
+              <span>
+                <Edit3 size={18} />
+                <Trash2 size={18} />
+              </span>
             </footer>
           </article>
         ))}
@@ -744,202 +746,236 @@ function HistoryView({ sessions, chooseSession }: { sessions: Session[]; chooseS
   );
 }
 
-function TasksView() {
+function CitationDrawer({ onClose }: { onClose: () => void }) {
   return (
-    <section className="content-view">
-      <div className="task-create">
-        <div>
-          <p className="eyebrow">情报中枢</p>
-          <h2>创建定时任务</h2>
-          <p>输入关注领域，AI 自动生成日报/周报并推送至飞书。</p>
-        </div>
-        <label>
-          <span>关注领域</span>
-          <input placeholder="例如：重组胶原蛋白法规动态" />
-        </label>
-        <label>
-          <span>发布频次</span>
-          <select defaultValue="每周">
-            <option>每天</option>
-            <option>每周</option>
-          </select>
-        </label>
-        <button className="primary-button">
-          <BellRing size={16} />
-          发布任务
+    <aside className="citation-drawer">
+      <div className="drawer-title">
+        <h2>引用</h2>
+        <button onClick={onClose}>
+          <X size={28} />
         </button>
       </div>
-      <div className="table-card">
-        <TableHeader columns={['任务名称', '状态', '发布频次', '已执行', '最新执行', '下次执行', '操作']} />
-        {tasks.map((task) => (
-          <div className="table-row" key={task.name}>
-            <div>
-              <strong>{task.name}</strong>
-              <small>{task.focus}</small>
-            </div>
-            <Status status={task.status} />
-            <span>{task.frequency}</span>
-            <span>{task.rounds} 轮</span>
-            <span>{task.latest}</span>
-            <span>{task.next}</span>
-            <div className="row-actions">
-              <button>测试</button>
-              <button>{task.status === 'disabled' ? '启用' : '终止'}</button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function KnowledgeView() {
-  return (
-    <section className="content-view">
-      <div className="section-head">
-        <div>
-          <p className="eyebrow">企业知识中枢</p>
-          <h2>知识库管理</h2>
-        </div>
-        <div className="split-actions">
-          <button className="ghost-button">
-            <UploadCloud size={16} />
-            上传文件
-          </button>
-          <button className="primary-button">
-            <Plus size={16} />
-            创建知识库
-          </button>
-        </div>
-      </div>
-      <div className="kb-grid">
-        {knowledgeBases.map((kb) => (
-          <article className="kb-card" key={kb.id}>
-            <div className="kb-icon">
-              <Database size={22} />
-            </div>
-            <div>
-              <h3>{kb.name}</h3>
-              <p>{kb.desc}</p>
-              <footer>
-                <span>{kb.files} 个文件</span>
-                <span>{kb.owner}</span>
-                <Status status={kb.status === 'ready' ? 'enabled' : 'disabled'} />
-              </footer>
-            </div>
-          </article>
-        ))}
-      </div>
-      <div className="table-card">
-        <TableHeader columns={['文件名', '所属知识库', '格式', '状态', '上传时间', '操作']} />
-        {['外泌体护肤功效综述.pdf', '麦角硫因稳定性实验.xlsx', '化妆品功效宣称规范.docx'].map((file, index) => (
-          <div className="table-row file-row" key={file}>
-            <div>
-              <FileText size={18} />
-              <strong>{file}</strong>
-            </div>
-            <span>{knowledgeBases[index].name}</span>
-            <span>{file.split('.').pop()?.toUpperCase()}</span>
-            <Status status={index === 1 ? 'disabled' : 'enabled'} />
-            <span>2026-06-{18 + index}</span>
-            <div className="row-actions">
-              <button>
-                <FileDown size={14} />
-                下载
-              </button>
-              <button>删除</button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function AdminView() {
-  return (
-    <section className="content-view">
-      <div className="section-head">
-        <div>
-          <p className="eyebrow">管理员应用</p>
-          <h2>数据监控与模板配置</h2>
-        </div>
-        <button className="primary-button">
-          <Plus size={16} />
-          创建模板
+      {[1, 2].map((item) => (
+        <button className="citation-row" key={item}>
+          <Globe2 size={22} />
+          <strong>文章标题.pdf</strong>
+          <small>知识库名称 ｜ 文章创建人&nbsp;&nbsp;2025-07-16&nbsp;&nbsp;12:13:11</small>
         </button>
-      </div>
-      <div className="quota-grid">
-        <Quota title="小秘书 · 非联网" used={6240} total={10000} />
-        <Quota title="小秘书 · 联网" used={1390} total={3000} />
-        <Quota title="坏孩子" used={286} total={800} />
-      </div>
-      <div className="template-grid">
-        {['通用科普', '严谨科研', '董事会摘要'].map((item) => (
-          <article className="template-card" key={item}>
-            <div>
-              <span className="mode-label badchild">科学传播</span>
-              <h3>{item}</h3>
-              <p>用于坏孩子报告输出风格，可约束语气、引用密度与段落结构。</p>
-            </div>
-            <button className="ghost-button">编辑</button>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function Quota({ title, used, total }: { title: string; used: number; total: number }) {
-  const percent = Math.round((used / total) * 100);
-  return (
-    <article className="quota-card">
-      <span>{title}</span>
-      <strong>{used.toLocaleString()}</strong>
-      <p>总额度 {total.toLocaleString()} · 剩余 {(total - used).toLocaleString()}</p>
-      <div className="progress">
-        <i style={{ width: `${percent}%` }} />
-      </div>
-    </article>
-  );
-}
-
-function Status({ status }: { status: 'enabled' | 'disabled' | 'abnormal' }) {
-  const label = status === 'enabled' ? '启用中' : status === 'disabled' ? '处理中' : '异常';
-  return <span className={`status ${status}`}>{label}</span>;
-}
-
-function TableHeader({ columns }: { columns: string[] }) {
-  return (
-    <div className="table-header">
-      {columns.map((column) => (
-        <span key={column}>{column}</span>
       ))}
+    </aside>
+  );
+}
+
+function ModalLayer({ type, close }: { type: Modal; close: () => void }) {
+  return (
+    <div className="modal-mask">
+      {type === 'kbPicker' && <KbPicker close={close} />}
+      {type === 'taskConfig' && <TaskConfig close={close} />}
+      {type === 'createKb' && <CreateKb close={close} />}
+      {type === 'upload' && <UploadModal close={close} />}
+      {type === 'report' && <ReportModal close={close} />}
+      {type === 'template' && <TemplateModal close={close} />}
     </div>
   );
 }
 
-function highlight(text: string, keyword: string) {
-  if (!keyword.trim()) return text;
-  const index = text.toLowerCase().indexOf(keyword.toLowerCase());
-  if (index < 0) return text;
+function KbPicker({ close }: { close: () => void }) {
   return (
-    <>
-      {text.slice(0, index)}
-      <mark>{text.slice(index, index + keyword.length)}</mark>
-      {text.slice(index + keyword.length)}
-    </>
+    <section className="modal-panel kb-picker-modal">
+      <ModalClose close={close} />
+      <h2>选择知识库</h2>
+      <div className="picker-table">
+        <div className="picked-col">
+          <strong>已选知识库（最多2个）</strong>
+          <input defaultValue="11" />
+        </div>
+        <div className="list-col">
+          <strong>知识库列表</strong>
+          <div className="inner-search">
+            <Search size={18} />
+            <input placeholder="输入关键词进行知识库搜索" />
+          </div>
+          <button className="kb-list-item">
+            <BookOpen size={16} />
+            11
+          </button>
+          <div className="modal-pagination">共1条 &lt; <b>1</b> &gt; 跳至 <input /> 页</div>
+        </div>
+      </div>
+      <ModalFooter close={close} confirm="确定" />
+    </section>
   );
 }
 
-function viewLabel(view: View) {
-  return {
-    chat: '会话详情',
-    history: '历史对话',
-    tasks: '定时任务',
-    knowledge: '知识库管理',
-    admin: '管理员应用'
-  }[view];
+function TaskConfig({ close }: { close: () => void }) {
+  return (
+    <section className="modal-panel task-modal">
+      <ModalClose close={close} />
+      <h2>输入任务名称</h2>
+      <div className="task-modal-row">
+        <RotateCw size={22} />
+        <button className="field-select">
+          每天 <ChevronDown size={17} />
+        </button>
+        <button className="field-select">
+          0时 <ChevronDown size={17} />
+        </button>
+      </div>
+      <p>* 发布频次中设定的时间为任务执行时间，任务执行后需等待几分钟查看结果</p>
+      <textarea placeholder="在此描述您的关注领域或关注要点" />
+      <ModalFooter close={close} confirm="完成" />
+    </section>
+  );
+}
+
+function CreateKb({ close }: { close: () => void }) {
+  return (
+    <section className="modal-panel form-modal">
+      <ModalClose close={close} />
+      <h2>创建知识库</h2>
+      <label>
+        <span>* 知识库名称</span>
+        <input placeholder="请输入知识库名称,不超过20字符" />
+      </label>
+      <label>
+        <span>描述</span>
+        <textarea placeholder="请输入知识库描述信息，不超过200字符" />
+      </label>
+      <ModalFooter close={close} confirm="创建" muted />
+    </section>
+  );
+}
+
+function UploadModal({ close }: { close: () => void }) {
+  return (
+    <section className="modal-panel upload-modal">
+      <ModalClose close={close} />
+      <h2>上传文件</h2>
+      <label className="radio-line">
+        <input type="radio" defaultChecked /> 本地上传
+      </label>
+      <div className="drop-zone">
+        <Upload size={38} />
+        <p>点击上传或拖拽本地文件至此处</p>
+        <small>支持Markdown、DOC、DOCX、WPS、TXT、PDF、ZIP、XLS、XLSX格式文件</small>
+      </div>
+      <div className="upload-file">xxxxxx（文件名）.zip</div>
+      <label className="toggle-line">
+        <input type="checkbox" defaultChecked /> 多模态解析
+      </label>
+      <ModalFooter close={close} confirm="上传" muted />
+    </section>
+  );
+}
+
+function ReportModal({ close }: { close: () => void }) {
+  return (
+    <section className="modal-panel report-modal">
+      <ModalClose close={close} />
+      <h2>查看报告</h2>
+      <h1>AI创新洞察报告:再生医学赋能抗衰护肤</h1>
+      <h3>技术路径综述</h3>
+      <p>麦角硫因的卓越稳定性主要源于其独特的互变异构现象：</p>
+      <ul>
+        <li>在生理pH下主要以硫酮形式存在（约95%以上）</li>
+        <li>硫酮形式比硫醇形式具有更高的热稳定性和化学稳定性</li>
+      </ul>
+      <h3>产品创新概念</h3>
+      <div className="concept-card">
+        <strong>概念1：细胞信使——冻干安瓶</strong>
+        <span>技术融合：路径1+2。高纯度植物外泌体+NMN冻干粉,即时活化。</span>
+        <span>目标客群：30+有密集修复需求的精致女性。</span>
+      </div>
+      <div className="concept-card">
+        <strong>概念1：细胞信使——冻干安瓶</strong>
+        <span>营销故事：“唤醒沉睡肌底,7天重焕新生光彩”。</span>
+      </div>
+    </section>
+  );
+}
+
+function TemplateModal({ close }: { close: () => void }) {
+  return (
+    <section className="modal-panel template-modal">
+      <ModalClose close={close} />
+      <h2>新建风格模板</h2>
+      <label>
+        <span>* 模板名称</span>
+        <input placeholder="请输入风格模板名称，建议简明扼要" />
+      </label>
+      <label className="scene-row">
+        <span>场景选择</span>
+        <button className="scene-choice">✓ 科学洞察</button>
+      </label>
+      <label>
+        <span>* 用户提示词</span>
+        <textarea placeholder="请输入用户提示词" />
+      </label>
+      <ModalFooter close={close} confirm="创建" muted />
+    </section>
+  );
+}
+
+function ModalClose({ close }: { close: () => void }) {
+  return (
+    <button className="modal-close" aria-label="关闭" onClick={close}>
+      <X size={32} />
+    </button>
+  );
+}
+
+function ModalFooter({ close, confirm, muted }: { close: () => void; confirm: string; muted?: boolean }) {
+  return (
+    <footer className="modal-footer">
+      <button onClick={close}>取消</button>
+      <button className={muted ? 'muted-confirm' : 'confirm'}>{confirm}</button>
+    </footer>
+  );
+}
+
+function RobotFace({ small, micro }: { small?: boolean; micro?: boolean }) {
+  return (
+    <div className={`robot-face ${small ? 'small' : ''} ${micro ? 'micro' : ''}`} aria-hidden="true">
+      <span className="ear left" />
+      <span className="ear right" />
+      <span className="visor">
+        <i />
+        <i />
+      </span>
+      <span className="mouth" />
+    </div>
+  );
+}
+
+function ReportIcon() {
+  return (
+    <span className="report-icon" aria-hidden="true">
+      <FileText size={24} />
+    </span>
+  );
+}
+
+function GridMark() {
+  return (
+    <span className="grid-mark" aria-hidden="true">
+      <i />
+      <i />
+      <i />
+      <i />
+    </span>
+  );
+}
+
+function LinkGlyph() {
+  return <span className="link-glyph" aria-hidden="true" />;
+}
+
+function Pagination() {
+  return (
+    <div className="pagination-real">
+      总共 85 个项目 <ChevronLeft size={21} /> <b>1</b> <span>2</span> <span>3</span> <span>4</span> <span>5</span> <ChevronRight size={21} />
+    </div>
+  );
 }
 
 createRoot(document.getElementById('root')!).render(<App />);
