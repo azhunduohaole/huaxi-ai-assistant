@@ -395,9 +395,9 @@ function PromptBox({
               <Bot size={15} />
               智能搜索
             </button>
-            <button className="tool-chip" onClick={() => setModal('kbPicker')}>
+            <button className="tool-chip kb-tool" onClick={() => setModal('kbPicker')}>
               <Bot size={15} />
-              知识库
+              知识库(3)
             </button>
             <button className="tool-chip">
               技术综述
@@ -406,9 +406,9 @@ function PromptBox({
           </>
         ) : (
           <>
-            <button className="tool-chip" onClick={() => setModal('kbPicker')}>
+            <button className="tool-chip kb-tool" onClick={() => setModal('kbPicker')}>
               <Bot size={15} />
-              知识库
+              知识库(3)
             </button>
             <button className="tool-chip">
               科学洞察
@@ -447,7 +447,7 @@ function AgentSwitch({ agent, setAgent }: { agent: Agent; setAgent: (agent: Agen
   return (
     <div className="home-agent-switcher" role="group" aria-label="切换智能体">
       {agents.map((item) => (
-        <button key={item.key} className={agent === item.key ? 'active' : ''} onClick={() => setAgent(item.key)}>
+        <button key={item.key} className={agent === item.key ? 'active' : ''} aria-pressed={agent === item.key} onClick={() => setAgent(item.key)}>
           <RobotFace small agent={item.key} />
           <span>{item.label}</span>
         </button>
@@ -935,12 +935,16 @@ function MobileScenesSheet({ close }: { close: () => void }) {
 
 function KbPicker({ close }: { close: () => void }) {
   return (
-    <section className="modal-panel kb-picker-modal">
+    <section className="modal-panel kb-picker-modal" aria-label="选择知识库">
       <ModalClose close={close} />
       <div className="kb-picker-head">
-        <h2>选择知识库</h2>
-        <span>最多选择 2 个</span>
+        <h2>知识库</h2>
+        <button className="kb-enable" onClick={close}>
+          启用
+          <ChevronRight size={14} />
+        </button>
       </div>
+      <div className="kb-picker-subhead">选择知识库</div>
       <div className="kb-selected-row">
         <button>
           知识库1
@@ -962,10 +966,11 @@ function KbPicker({ close }: { close: () => void }) {
               <BookOpen size={16} />
               {item}
             </span>
-            <i>{index < 2 ? '已选' : '选择'}</i>
+            <i>{index < 2 ? '✓' : '+'}</i>
           </button>
         ))}
       </div>
+      <small className="kb-picker-tip">最多选择 3 个知识库，选择后会随提问一起参与检索。</small>
       <ModalFooter close={close} confirm="确定" />
     </section>
   );
