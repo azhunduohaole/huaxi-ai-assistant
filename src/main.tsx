@@ -177,6 +177,7 @@ function App() {
 
   const openView = (next: View) => {
     setView(next);
+    setModal(null);
     setMobileMenuOpen(false);
     requestAnimationFrame(() => {
       window.scrollTo({ top: 0, left: 0 });

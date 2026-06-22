@@ -4759,6 +4759,278 @@ th {
   }
 }
 
+/* Final MasterGo desktop alignment: compact Feishu app shell, list rows, and centered assistant composer. */
+@media (min-width: 901px) {
+  .prototype-shell {
+    grid-template-columns: 64px 252px minmax(0, 1fr);
+    background: #edf1f7;
+  }
+
+  .prototype-shell.with-citation {
+    grid-template-columns: 64px 252px minmax(0, 1fr) 520px;
+  }
+
+  .feishu-rail {
+    padding: 10px 6px;
+    background: #eef2f8;
+  }
+
+  .feishu-item {
+    min-height: 31px;
+    padding: 0 8px;
+    gap: 6px;
+    border-radius: 6px;
+  }
+
+  .feishu-item span {
+    font-size: 12px;
+  }
+
+  .app-sidebar {
+    padding: 18px 10px 16px;
+    background: #f6f8fc;
+  }
+
+  .app-title {
+    height: 34px;
+    margin-bottom: 14px;
+    gap: 8px;
+    padding: 0 6px;
+  }
+
+  .app-title .robot-face.small {
+    width: 30px;
+    height: 30px;
+    flex-basis: 30px;
+  }
+
+  .app-title strong {
+    font-size: 14px;
+  }
+
+  .side-nav {
+    gap: 4px;
+    margin-bottom: 14px;
+  }
+
+  .side-nav button {
+    height: 30px;
+    padding: 0 9px;
+    border-radius: 6px;
+    font-size: 13px;
+  }
+
+  .side-history {
+    gap: 3px;
+  }
+
+  .side-history::before {
+    content: "今天";
+    margin: 2px 9px 4px;
+    font-size: 12px;
+  }
+
+  .side-history button {
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 9px;
+    border-radius: 6px;
+  }
+
+  .side-history button.current {
+    background: #fff;
+    box-shadow: inset 2px 0 0 #3370ff;
+  }
+
+  .side-history button strong {
+    flex: 1;
+    font-size: 13px;
+    line-height: 32px;
+    font-weight: 500;
+  }
+
+  .conversation-date,
+  .side-history button small {
+    display: none;
+  }
+
+  .conversation-actions {
+    right: 6px;
+    top: 4px;
+    gap: 4px;
+    padding: 2px 4px;
+    background: #fff;
+  }
+
+  .conversation-actions svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .all-history {
+    height: 30px;
+    margin-top: 6px;
+    padding: 0 9px;
+    border-radius: 6px;
+    font-size: 13px;
+  }
+
+  .agent-shortcuts {
+    left: 10px;
+    right: 10px;
+    bottom: 14px;
+  }
+
+  .agent-shortcuts button {
+    height: 32px;
+    border-radius: 6px;
+  }
+
+  .workspace::before {
+    height: 36px;
+    font-size: 12px;
+  }
+
+  .view-home .home-stage {
+    min-height: calc(100vh - 36px);
+    padding-top: 56px;
+  }
+
+  .home-avatar-anchor {
+    width: 84px;
+    height: 84px;
+    margin-bottom: 16px;
+  }
+
+  .home-avatar-anchor .robot-face {
+    width: 84px;
+    height: 84px;
+  }
+
+  .view-home .home-agent-switcher {
+    height: 46px;
+    padding: 4px;
+    background: #ededed;
+  }
+
+  .view-home .home-agent-switcher button {
+    height: 38px;
+    min-width: 102px;
+    padding: 0 14px 0 7px;
+    font-size: 16px;
+  }
+
+  .view-home .home-agent-switcher .robot-face.small,
+  .view-home .home-agent-switcher button.active .robot-face.small {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+  }
+
+  .view-home .assistant-line {
+    max-width: 760px;
+    margin: 22px 0;
+    font-size: 20px;
+  }
+
+  .view-home .prompt-box:not(.compact) {
+    width: min(640px, calc(100vw - 390px));
+    min-height: 92px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    padding: 12px 12px 8px 16px;
+  }
+
+  .view-home .prompt-box:not(.compact) .placeholder {
+    font-size: 15px;
+  }
+
+  .view-home .prompt-box:not(.compact) .tool-chip {
+    height: 28px;
+    min-height: 28px;
+    padding: 0 9px;
+    font-size: 13px;
+  }
+
+  .view-home .prompt-box:not(.compact) .icon-chip {
+    min-height: 28px;
+  }
+
+  .view-home .prompt-box:not(.compact) .send-circle {
+    right: 12px;
+    bottom: 8px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .view-home .prompt-box:not(.compact) .send-circle svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .view-home .suggestion-area {
+    width: min(640px, calc(100vw - 390px));
+    margin-top: 18px;
+    gap: 8px;
+  }
+
+  .view-home .suggestion-area button {
+    min-width: 300px;
+    min-height: 42px;
+    padding-left: 42px;
+    font-size: 14px;
+  }
+
+  .view-home .suggestion-area button::before {
+    left: 14px;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+  }
+
+  .fixed-composer {
+    left: calc(64px + 252px + 50%);
+  }
+
+  .prompt-box.compact {
+    width: min(640px, calc(100vw - 390px));
+  }
+
+  .kb-picker-modal {
+    left: calc(64px + 252px + 50% - 40px);
+    top: 332px;
+    width: 320px;
+  }
+
+  .frequency-menu {
+    left: calc(64px + 252px + 50% - 132px);
+    top: 326px;
+  }
+
+  .file-status-menu {
+    left: calc(64px + 252px + 168px);
+  }
+
+  .admin-sidebar .side-nav .admin-return,
+  .admin-page-head button {
+    height: 34px;
+    border: 1px solid #dfe5ef;
+    border-radius: 6px;
+    background: #fff;
+    color: #344054;
+    padding: 0 10px;
+  }
+
+  .admin-page-head {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    padding-bottom: 10px;
+    background: #fff;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
