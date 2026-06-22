@@ -98,6 +98,7 @@ type Modal =
   | 'kbPicker'
   | 'taskConfig'
   | 'frequencyMenu'
+  | 'fileStatusMenu'
   | 'createKb'
   | 'upload'
   | 'report'
@@ -106,15 +107,14 @@ type Modal =
   | 'mobileScenes';
 
 const conversations = [
-  '对话5-知识检索XXX...',
-  '对话5-情报监测XXX...',
-  '对话5-创新探索XXX...',
-  '对话5-XXXXXXXXX...',
-  '对话5-XXXXXXXXX...',
-  '对话5-XXXXXXXXX...',
-  '对话5-XXXXXXXXX...',
-  '对话5-XXXXXXXXX...'
+  { title: '冬眠的熊是一次性大量进食...', date: '2026年12月25日', summary: '比如生活在热带、亚热带地区的马来熊，它们的栖息地全年温暖，食物也相对稳定。' },
+  { title: '华熙在HA领域的最新研究成果', date: '2026年12月25日', summary: '围绕透明质酸原料、医美护理与再生医学相关资料进行知识检索。' },
+  { title: '生物护理品原料四大业务领域', date: '2026年12月24日', summary: '梳理生物活性物、合成生物、功能糖及细胞工程等业务资料。' },
+  { title: '抗衰老技术领域月度情报', date: '2026年12月23日', summary: '追踪法规、论文、专利和竞品动态，生成阶段性情报摘要。' },
+  { title: 'AI创新探索分析', date: '2026年12月22日', summary: '从开放问题出发连接不同领域知识，形成技术路径与概念启发。' },
+  { title: '华熙当康品牌宣传资料', date: '2026年12月21日', summary: '检索品牌资料、产品卖点和公开传播素材。' }
 ];
+type Conversation = (typeof conversations)[number];
 
 const taskRows = [
   { title: '抗衰老技术领域月度情报', badge: '有新报告', status: '运行中', color: 'green' },
@@ -150,7 +150,11 @@ function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [historySearch, setHistorySearch] = useState('');
   const filteredConversations = useMemo(
-    () => conversations.filter((item) => item.toLowerCase().includes(historySearch.toLowerCase())),
+    () =>
+      conversations.filter((item) => {
+        const keyword = historySearch.toLowerCase();
+        return item.title.toLowerCase().includes(keyword) || item.summary.toLowerCase().includes(keyword);
+      }),
     [historySearch]
   );
 
@@ -165,9 +169,20 @@ function App() {
     return () => window.removeEventListener('keydown', closeOnEscape);
   }, [modal]);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0 });
+    document.querySelector('.workspace')?.scrollTo({ top: 0, left: 0 });
+    document.querySelector('.workspace > section')?.scrollTo({ top: 0, left: 0 });
+  }, [view]);
+
   const openView = (next: View) => {
     setView(next);
     setMobileMenuOpen(false);
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0 });
+      document.querySelector('.workspace')?.scrollTo({ top: 0, left: 0 });
+      document.querySelector('.workspace > section')?.scrollTo({ top: 0, left: 0 });
+    });
   };
 
   const startChat = () => {
@@ -271,7 +286,7 @@ function AppSidebar({
   closeMobileMenu
 }: {
   view: View;
-  conversations: string[];
+  conversations: Conversation[];
   openView: (view: View) => void;
   mobileMenuOpen: boolean;
   closeMobileMenu: () => void;
@@ -329,9 +344,15 @@ function AppSidebar({
         <>
           <div className="side-history">
             {conversations.map((item, index) => (
-              <button key={`${item}-${index}`} className={index === 0 ? 'current' : ''} onClick={() => openView('chat')}>
-                <span>{item}</span>
-                <MoreHorizontal size={16} />
+              <button key={`${item.title}-${index}`} className={index === 0 ? 'current' : ''} onClick={() => openView('chat')}>
+                <span className="conversation-date">{item.date}</span>
+                <strong>{item.title}</strong>
+                <small>{item.summary}</small>
+                <span className="conversation-actions" aria-hidden="true">
+                  <Edit3 size={16} />
+                  <Circle size={16} />
+                  <Trash2 size={16} />
+                </span>
               </button>
             ))}
           </div>
@@ -360,6 +381,9 @@ function HomeView({
 }) {
   return (
     <section className="home-stage">
+      <div className="home-avatar-anchor">
+        <RobotFace agent={agent} />
+      </div>
       <AgentSwitch agent={agent} setAgent={setAgent} />
       <p className="assistant-line">
         {agent === 'secretary'
@@ -766,7 +790,7 @@ function KnowledgeDetail({ setView, setModal }: { setView: (view: View) => void;
         <button className="muted-primary" onClick={() => setModal('upload')}>
           上传文件
         </button>
-        <button className="sort-select">
+        <button className="sort-select file-status-trigger" onClick={() => setModal('fileStatusMenu')} aria-haspopup="menu">
           全部 <ChevronDown size={16} />
         </button>
         <div className="table-search">
@@ -890,7 +914,7 @@ function CitationDrawer({ onClose }: { onClose: () => void }) {
 function ModalLayer({ type, close, setModal }: { type: Modal; close: () => void; setModal: (modal: Modal) => void }) {
   return (
     <div
-      className={`modal-mask ${type === 'mobileTools' || type === 'mobileScenes' ? 'mobile-sheet-mask' : ''} ${type === 'kbPicker' ? 'kb-picker-mask' : ''} ${type === 'frequencyMenu' ? 'frequency-menu-mask' : ''}`}
+      className={`modal-mask ${type === 'mobileTools' || type === 'mobileScenes' ? 'mobile-sheet-mask' : ''} ${type === 'kbPicker' ? 'kb-picker-mask' : ''} ${type === 'frequencyMenu' ? 'frequency-menu-mask' : ''} ${type === 'fileStatusMenu' ? 'file-status-menu-mask' : ''}`}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) close();
       }}
@@ -898,6 +922,7 @@ function ModalLayer({ type, close, setModal }: { type: Modal; close: () => void;
       {type === 'kbPicker' && <KbPicker close={close} />}
       {type === 'taskConfig' && <TaskConfig close={close} />}
       {type === 'frequencyMenu' && <FrequencyMenu close={close} />}
+      {type === 'fileStatusMenu' && <FileStatusMenu close={close} />}
       {type === 'createKb' && <CreateKb close={close} />}
       {type === 'upload' && <UploadModal close={close} />}
       {type === 'report' && <ReportModal close={close} />}
@@ -968,6 +993,21 @@ function FrequencyMenu({ close }: { close: () => void }) {
         <span />
         每周
       </button>
+    </section>
+  );
+}
+
+function FileStatusMenu({ close }: { close: () => void }) {
+  const options = ['全部', '未处理', '处理中', '处理失败', '处理完成'];
+
+  return (
+    <section className="file-status-menu" role="menu" aria-label="选择文件处理状态">
+      {options.map((option, index) => (
+        <button key={option} className={index === 1 ? 'hovered' : index === 0 ? 'selected' : ''} role="menuitem" onClick={close}>
+          <span>{index === 0 ? '✓' : ''}</span>
+          {option}
+        </button>
+      ))}
     </section>
   );
 }
