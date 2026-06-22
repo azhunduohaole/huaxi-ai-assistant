@@ -125,6 +125,12 @@ const fileRows = [
   { name: '蛋白设计方案.pdf', status: '处理失败', progress: 60, tone: 'orange' }
 ];
 
+const quotaRows = [
+  { title: '小秘书-联网模式', total: '1,000,000次/年', used: '467800' },
+  { title: '小秘书-非联网模式', total: '25,000次/年', used: '7800' },
+  { title: '坏孩子', total: '12,000次/年', used: '4678' }
+];
+
 function App() {
   const [view, setView] = useState<View>('home');
   const [agent, setAgent] = useState<Agent>('secretary');
@@ -743,17 +749,17 @@ function AdminView({ setModal }: { setModal: (modal: Modal) => void }) {
     <section className="admin-page">
       <h1>调用额度</h1>
       <div className="quota-grid-real">
-        {['小秘书-联网模式', '小秘书-非联网模式', '坏孩子'].map((item) => (
-          <article className="quota-card-real" key={item}>
-            <h2>{item}</h2>
+        {quotaRows.map((item) => (
+          <article className="quota-card-real" key={item.title}>
+            <h2>{item.title}</h2>
             <div className="quota-body">
               <div>
                 <p>
                   已使用: <strong>78%</strong>
                 </p>
                 <hr />
-                <span>总次数&nbsp;&nbsp; 1,000,000次/年</span>
-                <span>已使用&nbsp;&nbsp; 467800</span>
+                <span>总次数&nbsp;&nbsp; {item.total}</span>
+                <span>已使用&nbsp;&nbsp; {item.used}</span>
               </div>
               <div className="donut" />
             </div>
