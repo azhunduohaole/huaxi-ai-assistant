@@ -93,7 +93,17 @@ const Upload = makeIcon(<path d="M12 16V4m0 0-5 5m5-5 5 5M4 20h16" {...iconStrok
 
 type View = 'home' | 'chat' | 'history' | 'tasks' | 'knowledge' | 'kbDetail' | 'admin';
 type Agent = 'secretary' | 'badchild';
-type Modal = null | 'kbPicker' | 'taskConfig' | 'createKb' | 'upload' | 'report' | 'template' | 'mobileTools' | 'mobileScenes';
+type Modal =
+  | null
+  | 'kbPicker'
+  | 'taskConfig'
+  | 'frequencyMenu'
+  | 'createKb'
+  | 'upload'
+  | 'report'
+  | 'template'
+  | 'mobileTools'
+  | 'mobileScenes';
 
 const conversations = [
   '对话5-知识检索XXX...',
@@ -662,7 +672,7 @@ function TasksView({ setModal }: { setModal: (modal: Modal) => void }) {
         <p>选择关注领域、时间范围并创建定时任务，AI将自动汇总最新的技术、法规和竞品动态。</p>
         <div className="task-create-bar">
           <input placeholder="在此描述您的关注领域或关注要点" />
-          <button className="select-button">
+          <button className="select-button frequency-trigger" onClick={() => setModal('frequencyMenu')} aria-haspopup="menu">
             每天 <ChevronDown size={16} />
           </button>
           <button className="config-button" onClick={() => setModal('taskConfig')} aria-label="更多配置">
@@ -880,13 +890,14 @@ function CitationDrawer({ onClose }: { onClose: () => void }) {
 function ModalLayer({ type, close, setModal }: { type: Modal; close: () => void; setModal: (modal: Modal) => void }) {
   return (
     <div
-      className={`modal-mask ${type === 'mobileTools' || type === 'mobileScenes' ? 'mobile-sheet-mask' : ''} ${type === 'kbPicker' ? 'kb-picker-mask' : ''}`}
+      className={`modal-mask ${type === 'mobileTools' || type === 'mobileScenes' ? 'mobile-sheet-mask' : ''} ${type === 'kbPicker' ? 'kb-picker-mask' : ''} ${type === 'frequencyMenu' ? 'frequency-menu-mask' : ''}`}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) close();
       }}
     >
       {type === 'kbPicker' && <KbPicker close={close} />}
       {type === 'taskConfig' && <TaskConfig close={close} />}
+      {type === 'frequencyMenu' && <FrequencyMenu close={close} />}
       {type === 'createKb' && <CreateKb close={close} />}
       {type === 'upload' && <UploadModal close={close} />}
       {type === 'report' && <ReportModal close={close} />}
@@ -942,6 +953,21 @@ function MobileScenesSheet({ close }: { close: () => void }) {
           </button>
         ))}
       </div>
+    </section>
+  );
+}
+
+function FrequencyMenu({ close }: { close: () => void }) {
+  return (
+    <section className="frequency-menu" role="menu" aria-label="选择定时任务频次">
+      <button className="selected" role="menuitem" onClick={close}>
+        <span>✓</span>
+        每天
+      </button>
+      <button role="menuitem" onClick={close}>
+        <span />
+        每周
+      </button>
     </section>
   );
 }
