@@ -7190,12 +7190,15 @@ th {
   }
 
   .prompt-box.compact .prompt-tools {
-    order: 0;
+    position: static;
+    order: 2;
     flex-wrap: nowrap;
     padding-right: 34px;
+    overflow: hidden;
   }
 
   .prompt-box.compact .prompt-line {
+    order: 1;
     min-height: 34px;
   }
 
