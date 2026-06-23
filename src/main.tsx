@@ -172,7 +172,7 @@ type TemplateItem = {
 };
 
 type ConfirmRequest = {
-  type: 'conversation' | 'task' | 'knowledgeBase' | 'knowledgeFile' | 'template';
+  type: 'conversation' | 'task' | 'knowledgeBase' | 'knowledgeFile' | 'knowledgeFileBatch' | 'template';
   id: string;
   title: string;
   message: string;
@@ -381,6 +381,13 @@ function App() {
       showNotice('文件已删除');
     }
 
+    if (confirmRequest.type === 'knowledgeFileBatch') {
+      const ids = confirmRequest.id.split(',').filter(Boolean);
+      setKnowledgeFiles((items) => items.filter((item) => !ids.includes(item.id)));
+      setKnowledgeBases((items) => items.map((item) => (item.id === selectedKbId ? { ...item, files: Math.max(0, item.files - ids.length) } : item)));
+      showNotice('已批量删除文件');
+    }
+
     if (confirmRequest.type === 'template') {
       const removed = templates.find((item) => item.id === confirmRequest.id);
       setTemplates((items) => items.filter((item) => item.id !== confirmRequest.id));
@@ -483,6 +490,20 @@ function App() {
     });
   };
 
+  const renameKnowledgeBase = (id: string, title: string) => {
+    const normalized = title.trim();
+    if (!normalized) {
+      showNotice('知识库名称不能为空');
+      return;
+    }
+    if (knowledgeBases.some((item) => item.id !== id && item.title === normalized)) {
+      showNotice('知识库名称已存在，请更换名称');
+      return;
+    }
+    setKnowledgeBases((items) => items.map((item) => (item.id === id ? { ...item, title: normalized } : item)));
+    showNotice('知识库已重命名');
+  };
+
   const uploadKnowledgeFile = (fileName: string) => {
     const normalized = fileName.trim() || `新上传资料_${knowledgeFiles.length + 1}.pdf`;
     const next: KnowledgeFile = {
@@ -508,6 +529,30 @@ function App() {
       title: '删除文件',
       message: `确认删除「${file?.name ?? '该文件'}」？删除后将无法参与知识库检索。`
     });
+  };
+
+  const deleteKnowledgeFiles = (ids: string[]) => {
+    if (!ids.length) {
+      showNotice('请选择需要删除的文件');
+      return;
+    }
+    requestConfirm({
+      type: 'knowledgeFileBatch',
+      id: ids.join(','),
+      title: '批量删除文件',
+      message: `确认删除已选中的 ${ids.length} 个文件？删除后将无法参与知识库检索。`
+    });
+  };
+
+  const downloadKnowledgeFile = (file: KnowledgeFile) => {
+    const blob = new Blob([`# ${file.name}\n\n来源：${file.source}\n状态：${file.status}\n创建时间：${file.created}\n`], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = file.name.replace(/\.[^.]+$/, '') + '.md';
+    link.click();
+    URL.revokeObjectURL(url);
+    showNotice('文件下载已开始');
   };
 
   const createTemplate = (name: string, prompt: string) => {
@@ -634,6 +679,7 @@ function App() {
             setModal={setModal}
             knowledgeBases={knowledgeBases}
             setSelectedKbId={setSelectedKbId}
+            renameKnowledgeBase={renameKnowledgeBase}
             deleteKnowledgeBase={deleteKnowledgeBase}
           />
         )}
@@ -644,6 +690,8 @@ function App() {
             knowledgeBase={knowledgeBases.find((item) => item.id === selectedKbId) ?? knowledgeBases[0]}
             files={knowledgeFiles}
             deleteKnowledgeFile={deleteKnowledgeFile}
+            deleteKnowledgeFiles={deleteKnowledgeFiles}
+            downloadKnowledgeFile={downloadKnowledgeFile}
           />
         )}
         {view === 'admin' && <AdminView setModal={setModal} openView={openView} templates={templates} deleteTemplate={deleteTemplate} />}
@@ -723,8 +771,8 @@ function FeishuRail() {
         <Search size={15} />
         <span>搜索 (⌘+K)</span>
       </button>
-      {rail.map((item) => (
-        <button key={item.label} className={`feishu-item ${item.label === '工作台' ? 'active' : ''}`} aria-label={item.label}>
+      {rail.map((item, index) => (
+        <button key={`${item.label}-${index}`} className={`feishu-item ${item.label === '工作台' ? 'active' : ''}`} aria-label={item.label}>
           {item.icon}
           <span>{item.label}</span>
         </button>
@@ -1521,54 +1569,113 @@ function KnowledgeView({
   setModal,
   knowledgeBases,
   setSelectedKbId,
+  renameKnowledgeBase,
   deleteKnowledgeBase
 }: {
   setView: (view: View) => void;
   setModal: (modal: Modal) => void;
   knowledgeBases: KnowledgeBase[];
   setSelectedKbId: (id: string) => void;
+  renameKnowledgeBase: (id: string, title: string) => void;
   deleteKnowledgeBase: (id: string) => void;
 }) {
+  const [query, setQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'created' | 'files'>('created');
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renamingTitle, setRenamingTitle] = useState('');
+  const visibleKnowledgeBases = useMemo(() => {
+    const keyword = query.trim().toLowerCase();
+    return knowledgeBases
+      .filter((item) => `${item.title} ${item.desc} ${item.owner}`.toLowerCase().includes(keyword))
+      .sort((a, b) => (sortBy === 'files' ? b.files - a.files : parseInt(b.created, 10) - parseInt(a.created, 10)));
+  }, [knowledgeBases, query, sortBy]);
+
+  const saveRename = () => {
+    if (!renamingId) return;
+    renameKnowledgeBase(renamingId, renamingTitle);
+    setRenamingId(null);
+    setRenamingTitle('');
+  };
+
   return (
     <section className="knowledge-page">
       <div className="knowledge-toolbar">
         <h1>知识库</h1>
         <div className="table-search">
           <Search size={20} />
-          <input placeholder="支持文件名称/关键词搜索" />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="支持文件名称/关键词搜索" />
         </div>
-        <button className="sort-select">
-          按创建时间排序 <ChevronDown size={16} />
+        <button className="sort-select" onClick={() => setSortBy((current) => (current === 'created' ? 'files' : 'created'))}>
+          {sortBy === 'created' ? '按创建时间排序' : '按文件数排序'} <ChevronDown size={16} />
         </button>
         <button className="muted-primary" onClick={() => setModal('createKb')}>
           创建知识库
         </button>
       </div>
       <div className="kb-grid-real">
-        {knowledgeBases.map((card, index) => (
+        {visibleKnowledgeBases.map((card) => (
           <article
             key={card.id}
-            className={`kb-card-real ${index === 4 ? 'selected show-menu' : ''}`}
+            className={`kb-card-real ${openMenuId === card.id ? 'selected show-menu' : ''} ${renamingId === card.id ? 'renaming' : ''}`}
             onClick={() => {
+              if (renamingId === card.id) return;
               setSelectedKbId(card.id);
               setView('kbDetail');
             }}
           >
-            <button className="kb-more" aria-label="更多操作" onClick={(event) => event.stopPropagation()}>
+            <button
+              className="kb-more"
+              aria-label="更多操作"
+              onClick={(event) => {
+                event.stopPropagation();
+                setOpenMenuId((current) => (current === card.id ? null : card.id));
+              }}
+            >
               <MoreHorizontal size={16} />
             </button>
-            <h2>{card.title}</h2>
+            {renamingId === card.id ? (
+              <input
+                className="kb-rename-input"
+                value={renamingTitle}
+                autoFocus
+                onClick={(event) => event.stopPropagation()}
+                onChange={(event) => setRenamingTitle(event.target.value.slice(0, 40))}
+                onBlur={saveRename}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') saveRename();
+                  if (event.key === 'Escape') {
+                    setRenamingId(null);
+                    setRenamingTitle('');
+                  }
+                }}
+              />
+            ) : (
+              <h2>{card.title}</h2>
+            )}
             <p>{card.desc}</p>
             <footer>
               {card.owner} <i /> {card.created} <i /> {card.files}个文件
             </footer>
-            {index === 4 && (
+            {openMenuId === card.id && (
               <div className="kb-action-menu" onClick={(event) => event.stopPropagation()}>
-                <button>
+                <button
+                  onClick={() => {
+                    setRenamingId(card.id);
+                    setRenamingTitle(card.title);
+                    setOpenMenuId(null);
+                  }}
+                >
                   <Edit3 size={14} />
                   重命名
                 </button>
-                <button className="danger" onClick={() => deleteKnowledgeBase(card.id)}>
+                <button
+                  className="danger"
+                  onClick={() => {
+                    setOpenMenuId(null);
+                    deleteKnowledgeBase(card.id);
+                  }}
+                >
                   <Trash2 size={14} />
                   删除
                 </button>
@@ -1577,6 +1684,7 @@ function KnowledgeView({
           </article>
         ))}
       </div>
+      {!visibleKnowledgeBases.length && <div className="kb-empty-state">未找到匹配的知识库</div>}
       <Pagination />
     </section>
   );
@@ -1587,14 +1695,50 @@ function KnowledgeDetail({
   setModal,
   knowledgeBase,
   files,
-  deleteKnowledgeFile
+  deleteKnowledgeFile,
+  deleteKnowledgeFiles,
+  downloadKnowledgeFile
 }: {
   setView: (view: View) => void;
   setModal: (modal: Modal) => void;
   knowledgeBase?: KnowledgeBase;
   files: KnowledgeFile[];
   deleteKnowledgeFile: (id: string) => void;
+  deleteKnowledgeFiles: (ids: string[]) => void;
+  downloadKnowledgeFile: (file: KnowledgeFile) => void;
 }) {
+  const statusOptions: Array<'全部' | KnowledgeFile['status']> = ['全部', '未处理', '处理中', '处理失败', '处理完成'];
+  const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'全部' | KnowledgeFile['status']>('全部');
+  const [selectedFileIds, setSelectedFileIds] = useState<string[]>([]);
+  const visibleFiles = useMemo(() => {
+    const keyword = query.trim().toLowerCase();
+    return files.filter((file) => {
+      const matchKeyword = `${file.name} ${file.source}`.toLowerCase().includes(keyword);
+      const matchStatus = statusFilter === '全部' || file.status === statusFilter;
+      return matchKeyword && matchStatus;
+    });
+  }, [files, query, statusFilter]);
+  const allVisibleSelected = visibleFiles.length > 0 && visibleFiles.every((file) => selectedFileIds.includes(file.id));
+  const selectedFiles = visibleFiles.filter((file) => selectedFileIds.includes(file.id));
+
+  useEffect(() => {
+    setSelectedFileIds((ids) => ids.filter((id) => files.some((file) => file.id === id)));
+  }, [files]);
+
+  const toggleVisibleSelection = () => {
+    if (allVisibleSelected) {
+      setSelectedFileIds((ids) => ids.filter((id) => !visibleFiles.some((file) => file.id === id)));
+      return;
+    }
+    setSelectedFileIds((ids) => Array.from(new Set([...ids, ...visibleFiles.map((file) => file.id)])));
+  };
+
+  const cycleStatusFilter = () => {
+    const current = statusOptions.indexOf(statusFilter);
+    setStatusFilter(statusOptions[(current + 1) % statusOptions.length]);
+  };
+
   return (
     <section className="kb-detail-page">
       <div className="detail-title">
@@ -1607,22 +1751,25 @@ function KnowledgeDetail({
         <button className="muted-primary" onClick={() => setModal('upload')}>
           上传文件
         </button>
-        <button className="muted-primary batch-action">
+        <button className="muted-primary batch-action" disabled={!selectedFiles.length} onClick={() => selectedFiles.forEach(downloadKnowledgeFile)}>
           批量下载
         </button>
-        <button className="sort-select file-status-trigger" onClick={() => setModal('fileStatusMenu')} aria-haspopup="menu">
-          全部 <ChevronDown size={16} />
+        <button className="muted-primary batch-delete" disabled={!selectedFiles.length} onClick={() => deleteKnowledgeFiles(selectedFiles.map((file) => file.id))}>
+          批量删除
+        </button>
+        <button className="sort-select file-status-trigger" onClick={cycleStatusFilter} aria-haspopup="menu">
+          {statusFilter} <ChevronDown size={16} />
         </button>
         <div className="table-search">
           <Search size={18} />
-          <input placeholder="输入文件名称或关键词以查询" />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="输入文件名称或关键词以查询" />
         </div>
       </div>
       <table className="file-table">
         <thead>
           <tr>
             <th>
-              <input type="checkbox" /> 文件名称
+              <input type="checkbox" checked={allVisibleSelected} onChange={toggleVisibleSelection} /> 文件名称
             </th>
             <th>状态</th>
             <th />
@@ -1632,10 +1779,17 @@ function KnowledgeDetail({
           </tr>
         </thead>
         <tbody>
-          {files.map((file) => (
+          {visibleFiles.map((file) => (
             <tr key={file.id}>
               <td>
-                <input type="checkbox" /> {file.name}
+                <input
+                  type="checkbox"
+                  checked={selectedFileIds.includes(file.id)}
+                  onChange={() =>
+                    setSelectedFileIds((ids) => (ids.includes(file.id) ? ids.filter((id) => id !== file.id) : [...ids, file.id]))
+                  }
+                />{' '}
+                {file.name}
               </td>
               <td>{file.status}</td>
               <td>
@@ -1647,13 +1801,14 @@ function KnowledgeDetail({
               <td>{file.source}</td>
               <td>{file.created}</td>
               <td>
-                <button className="download-link" disabled={file.status === '处理中'}>下载</button>
+                <button className="download-link" disabled={file.status === '处理中'} onClick={() => downloadKnowledgeFile(file)}>下载</button>
                 <button className="delete-link" onClick={() => deleteKnowledgeFile(file.id)}>删除</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      {!visibleFiles.length && <div className="file-empty-state">未找到匹配的文件</div>}
       <Pagination />
     </section>
   );
@@ -2248,4 +2403,12 @@ function Pagination() {
   );
 }
 
-createRoot(document.getElementById('root')!).render(<App />);
+type HuaxiWindow = Window & {
+  __huaxiRoot?: ReturnType<typeof createRoot>;
+};
+
+const rootElement = document.getElementById('root')!;
+const huaxiWindow = window as HuaxiWindow;
+const root = huaxiWindow.__huaxiRoot ?? createRoot(rootElement);
+huaxiWindow.__huaxiRoot = root;
+root.render(<App />);
