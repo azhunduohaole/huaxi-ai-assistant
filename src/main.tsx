@@ -94,7 +94,7 @@ const Upload = makeIcon(<path d="M12 16V4m0 0-5 5m5-5 5 5M4 20h16" {...iconStrok
 type View = 'home' | 'chat' | 'history' | 'tasks' | 'knowledge' | 'kbDetail' | 'admin';
 type Agent = 'secretary' | 'badchild';
 type Scene = '技术综述' | '方向洞察' | '科学传播';
-type StyleTone = '通用' | '严谨';
+type StyleTone = string;
 type Modal =
   | null
   | 'kbPicker'
@@ -169,6 +169,13 @@ type TemplateItem = {
   prompt: string;
   creator: string;
   created: string;
+};
+
+type ConfirmRequest = {
+  type: 'conversation' | 'task' | 'knowledgeBase' | 'knowledgeFile' | 'template';
+  id: string;
+  title: string;
+  message: string;
 };
 
 const initialConversations: Conversation[] = [
@@ -270,6 +277,7 @@ function App() {
   const [knowledgeBases, setKnowledgeBases] = useState<KnowledgeBase[]>(initialKbCards);
   const [knowledgeFiles, setKnowledgeFiles] = useState<KnowledgeFile[]>(initialFileRows);
   const [templates, setTemplates] = useState<TemplateItem[]>(initialTemplates);
+  const [confirmRequest, setConfirmRequest] = useState<ConfirmRequest | null>(null);
   const [taskDraft, setTaskDraft] = useState({ title: '', focusArea: '', frequency: '每天' as TaskItem['frequency'], time: '9:00' });
   const [selectedKbId, setSelectedKbId] = useState(initialKbCards[0].id);
   const [lastQuestion, setLastQuestion] = useState('帮我找出麦角硫因稳定性相关数据');
@@ -312,6 +320,7 @@ function App() {
   };
 
   const activeConversation = conversations.find((item) => item.id === activeConversationId) ?? conversations[0];
+  const styleOptions = useMemo(() => ['通用', '严谨', ...templates.map((item) => item.name)], [templates]);
   const showNotice = (message: string) => {
     setNotice(message);
     window.setTimeout(() => setNotice(''), 1800);
@@ -339,6 +348,47 @@ function App() {
 
   const updateToolConfig = (patch: Partial<ToolConfig>) => {
     setToolConfig((current) => ({ ...current, ...patch }));
+  };
+
+  const requestConfirm = (request: ConfirmRequest) => {
+    setConfirmRequest(request);
+    setModal(null);
+  };
+
+  const runConfirmedAction = () => {
+    if (!confirmRequest) return;
+
+    if (confirmRequest.type === 'conversation') {
+      setConversations((items) => items.filter((item) => item.id !== confirmRequest.id));
+      if (activeConversationId === confirmRequest.id) openView('home');
+      showNotice('对话已删除');
+    }
+
+    if (confirmRequest.type === 'task') {
+      setTasks((items) => items.filter((item) => item.id !== confirmRequest.id));
+      showNotice('定时任务已删除');
+    }
+
+    if (confirmRequest.type === 'knowledgeBase') {
+      setKnowledgeBases((items) => items.filter((item) => item.id !== confirmRequest.id));
+      if (selectedKbId === confirmRequest.id) setSelectedKbId(knowledgeBases.find((item) => item.id !== confirmRequest.id)?.id ?? '');
+      showNotice('知识库已删除');
+    }
+
+    if (confirmRequest.type === 'knowledgeFile') {
+      setKnowledgeFiles((items) => items.filter((item) => item.id !== confirmRequest.id));
+      setKnowledgeBases((items) => items.map((item) => (item.id === selectedKbId ? { ...item, files: Math.max(0, item.files - 1) } : item)));
+      showNotice('文件已删除');
+    }
+
+    if (confirmRequest.type === 'template') {
+      const removed = templates.find((item) => item.id === confirmRequest.id);
+      setTemplates((items) => items.filter((item) => item.id !== confirmRequest.id));
+      if (removed && toolConfig.style === removed.name) updateToolConfig({ style: '通用' });
+      showNotice('模板已删除');
+    }
+
+    setConfirmRequest(null);
   };
 
   const createTask = (patch?: Partial<typeof taskDraft>) => {
@@ -390,8 +440,13 @@ function App() {
   };
 
   const deleteTask = (id: string) => {
-    setTasks((items) => items.filter((item) => item.id !== id));
-    showNotice('定时任务已删除');
+    const task = tasks.find((item) => item.id === id);
+    requestConfirm({
+      type: 'task',
+      id,
+      title: '删除定时任务',
+      message: `确认删除「${task?.title ?? '该任务'}」？删除后将不再推送报告。`
+    });
   };
 
   const createKnowledgeBase = (name: string, desc: string) => {
@@ -419,9 +474,13 @@ function App() {
   };
 
   const deleteKnowledgeBase = (id: string) => {
-    setKnowledgeBases((items) => items.filter((item) => item.id !== id));
-    if (selectedKbId === id) setSelectedKbId(knowledgeBases.find((item) => item.id !== id)?.id ?? '');
-    showNotice('知识库已删除');
+    const kb = knowledgeBases.find((item) => item.id === id);
+    requestConfirm({
+      type: 'knowledgeBase',
+      id,
+      title: '删除知识库',
+      message: `确认删除「${kb?.title ?? '该知识库'}」？关联文件和检索配置将同步移除。`
+    });
   };
 
   const uploadKnowledgeFile = (fileName: string) => {
@@ -442,9 +501,13 @@ function App() {
   };
 
   const deleteKnowledgeFile = (id: string) => {
-    setKnowledgeFiles((items) => items.filter((item) => item.id !== id));
-    setKnowledgeBases((items) => items.map((item) => (item.id === selectedKbId ? { ...item, files: Math.max(0, item.files - 1) } : item)));
-    showNotice('文件已删除');
+    const file = knowledgeFiles.find((item) => item.id === id);
+    requestConfirm({
+      type: 'knowledgeFile',
+      id,
+      title: '删除文件',
+      message: `确认删除「${file?.name ?? '该文件'}」？删除后将无法参与知识库检索。`
+    });
   };
 
   const createTemplate = (name: string, prompt: string) => {
@@ -467,8 +530,13 @@ function App() {
   };
 
   const deleteTemplate = (id: string) => {
-    setTemplates((items) => items.filter((item) => item.id !== id));
-    showNotice('模板已删除');
+    const template = templates.find((item) => item.id === id);
+    requestConfirm({
+      type: 'template',
+      id,
+      title: '删除风格模板',
+      message: `确认删除「${template?.name ?? '该模板'}」？坏孩子风格选择中将不再显示。`
+    });
   };
 
   return (
@@ -495,9 +563,13 @@ function App() {
           )
         }
         deleteConversation={(id) => {
-          setConversations((items) => items.filter((item) => item.id !== id));
-          if (activeConversationId === id) openView('home');
-          showNotice('对话已删除');
+          const conversation = conversations.find((item) => item.id === id);
+          requestConfirm({
+            type: 'conversation',
+            id,
+            title: '删除对话',
+            message: `确认删除「${conversation?.title ?? '该对话'}」？删除后不可恢复。`
+          });
         }}
         mobileMenuOpen={mobileMenuOpen}
         closeMobileMenu={() => setMobileMenuOpen(false)}
@@ -584,11 +656,19 @@ function App() {
           setModal={setModal}
           toolConfig={toolConfig}
           updateToolConfig={updateToolConfig}
+          styleOptions={styleOptions}
           knowledgeBases={knowledgeBases}
           createTask={createTask}
           createKnowledgeBase={createKnowledgeBase}
           uploadKnowledgeFile={uploadKnowledgeFile}
           createTemplate={createTemplate}
+        />
+      )}
+      {confirmRequest && (
+        <ConfirmModal
+          request={confirmRequest}
+          close={() => setConfirmRequest(null)}
+          confirm={runConfirmedAction}
         />
       )}
       {(copied || notice) && <div className="toast">{notice || '已复制'}</div>}
@@ -745,7 +825,7 @@ function AppSidebar({
           <>
             <button className={view === 'home' ? 'active' : ''} onClick={() => openView('home')}>
               <MessageCircle size={16} />
-              新建会话
+              新建对话
             </button>
             <button className={view === 'knowledge' || view === 'kbDetail' ? 'active' : ''} onClick={() => openView('knowledge')}>
               <BookOpen size={16} />
@@ -828,7 +908,11 @@ function AppSidebar({
             全部会话 <span>&gt;&gt;</span>
           </button>
           <div className="agent-shortcuts">
-            <button onClick={() => openView('admin')}>管理端</button>
+            <span>华熙</span>
+            <button onClick={() => openView('admin')} aria-label="进入华熙AI知识助手管理端">
+              <RobotFace micro agent="secretary" />
+              <strong>华熙AI知识助手</strong>
+            </button>
           </div>
         </>
       )}
@@ -1202,6 +1286,30 @@ function BadChildAnswer({ setModal, lastQuestion, toolConfig }: { setModal: (mod
     { title: '资料整理', status: '完成' },
     { title: '报告生成', status: '完成' }
   ];
+  const reportText = `# AI创新洞察报告:再生医学赋能抗衰护肤
+
+## 研究问题
+${lastQuestion}
+
+## 执行配置
+- 场景: ${toolConfig.scene}
+- 风格: ${toolConfig.style}
+- 知识库: ${toolConfig.selectedKbs.join('、') || '未选择'}
+
+## 技术路径综述
+围绕再生医学、透明质酸和抗衰护肤场景，系统梳理可验证资料、潜在技术路线和产品概念。
+`;
+  const downloadReport = (format: 'markdown' | 'pdf' | 'word') => {
+    const ext = format === 'markdown' ? 'md' : format === 'pdf' ? 'pdf' : 'doc';
+    const mime = format === 'markdown' ? 'text/markdown;charset=utf-8' : format === 'pdf' ? 'application/pdf' : 'application/msword';
+    const blob = new Blob([reportText], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `AI创新洞察报告.${ext}`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="answer-flow badchild-answer">
@@ -1233,9 +1341,9 @@ function BadChildAnswer({ setModal, lastQuestion, toolConfig }: { setModal: (mod
           <MoreHorizontal size={17} />
         </button>
         <div className="download-menu">
-          <button>导出为markdown</button>
-          <button>导出为PDF</button>
-          <button>导出为word</button>
+          <button onClick={(event) => { event.stopPropagation(); downloadReport('markdown'); }}>导出为markdown</button>
+          <button onClick={(event) => { event.stopPropagation(); downloadReport('pdf'); }}>导出为PDF</button>
+          <button onClick={(event) => { event.stopPropagation(); downloadReport('word'); }}>导出为word</button>
         </div>
       </div>
     </div>
@@ -1642,6 +1750,7 @@ function ModalLayer({
   setModal,
   toolConfig,
   updateToolConfig,
+  styleOptions,
   knowledgeBases,
   createTask,
   createKnowledgeBase,
@@ -1653,6 +1762,7 @@ function ModalLayer({
   setModal: (modal: Modal) => void;
   toolConfig: ToolConfig;
   updateToolConfig: (patch: Partial<ToolConfig>) => void;
+  styleOptions: string[];
   knowledgeBases: KnowledgeBase[];
   createTask: (patch?: { title?: string; focusArea?: string; frequency?: TaskItem['frequency']; time?: string }) => void;
   createKnowledgeBase: (name: string, desc: string) => void;
@@ -1668,7 +1778,7 @@ function ModalLayer({
     >
       {type === 'kbPicker' && <KbPicker close={close} toolConfig={toolConfig} updateToolConfig={updateToolConfig} knowledgeBases={knowledgeBases} />}
       {type === 'sceneMenu' && <SceneMenu close={close} toolConfig={toolConfig} updateToolConfig={updateToolConfig} />}
-      {type === 'styleMenu' && <StyleMenu close={close} toolConfig={toolConfig} updateToolConfig={updateToolConfig} />}
+      {type === 'styleMenu' && <StyleMenu close={close} toolConfig={toolConfig} updateToolConfig={updateToolConfig} styleOptions={styleOptions} />}
       {type === 'tempFile' && <TempFileModal close={close} toolConfig={toolConfig} updateToolConfig={updateToolConfig} />}
       {type === 'taskConfig' && <TaskConfig close={close} createTask={createTask} />}
       {type === 'frequencyMenu' && <FrequencyMenu close={close} />}
@@ -1773,10 +1883,15 @@ function KbPicker({
   updateToolConfig: (patch: Partial<ToolConfig>) => void;
   knowledgeBases: KnowledgeBase[];
 }) {
+  const [pendingKbs, setPendingKbs] = useState(toolConfig.selectedKbs);
   const toggleKb = (name: string) => {
-    const selected = toolConfig.selectedKbs.includes(name);
-    const next = selected ? toolConfig.selectedKbs.filter((item) => item !== name) : [...toolConfig.selectedKbs, name].slice(0, 3);
-    updateToolConfig({ selectedKbs: next });
+    const selected = pendingKbs.includes(name);
+    const next = selected ? pendingKbs.filter((item) => item !== name) : [...pendingKbs, name].slice(0, 3);
+    setPendingKbs(next);
+  };
+  const applySelection = () => {
+    updateToolConfig({ selectedKbs: pendingKbs });
+    close();
   };
 
   return (
@@ -1784,14 +1899,14 @@ function KbPicker({
       <ModalClose close={close} />
       <div className="kb-picker-head">
         <h2>知识库</h2>
-        <button className="kb-enable" onClick={close}>
+        <button className="kb-enable" onClick={applySelection}>
           启用
           <ChevronRight size={14} />
         </button>
       </div>
       <div className="kb-picker-subhead">选择知识库</div>
       <div className="kb-selected-row">
-        {toolConfig.selectedKbs.map((item) => (
+        {pendingKbs.map((item) => (
           <button key={item} onClick={() => toggleKb(item)}>
             {item}
             <X size={14} />
@@ -1804,7 +1919,7 @@ function KbPicker({
       </div>
       <div className="kb-option-list">
         {knowledgeBases.length ? knowledgeBases.map((item) => {
-          const selected = toolConfig.selectedKbs.includes(item.title);
+          const selected = pendingKbs.includes(item.title);
           return (
           <button key={item.id} className={selected ? 'selected' : ''} onClick={() => toggleKb(item.title)}>
             <span>
@@ -1818,7 +1933,7 @@ function KbPicker({
         }) : <div className="kb-empty">您还没有创建知识库，请先前往知识库管理页面创建</div>}
       </div>
       <small className="kb-picker-tip">最多选择 3 个知识库，选择后会随提问一起参与检索。</small>
-      <ModalFooter close={close} confirm="确定" />
+      <ModalFooter close={close} confirm="确定" onConfirm={applySelection} />
     </section>
   );
 }
@@ -1867,18 +1982,18 @@ function SceneMenu({
 function StyleMenu({
   close,
   toolConfig,
-  updateToolConfig
+  updateToolConfig,
+  styleOptions
 }: {
   close: () => void;
   toolConfig: ToolConfig;
   updateToolConfig: (patch: Partial<ToolConfig>) => void;
+  styleOptions: string[];
 }) {
-  const styles: StyleTone[] = ['通用', '严谨'];
-
   return (
     <section className="modal-panel mini-menu style-menu" aria-label="选择输出风格">
       <div className="mini-menu-head">风格设定</div>
-      {styles.map((style) => (
+      {styleOptions.map((style) => (
         <button
           key={style}
           className={toolConfig.style === style ? 'selected' : ''}
@@ -1889,7 +2004,7 @@ function StyleMenu({
         >
           <span>
             <strong>{style}</strong>
-            <small>{style === '严谨' ? '更适合科研、法规、报告类内容。' : '适合大多数问答与探索场景。'}</small>
+            <small>{style === '严谨' ? '更适合科研、法规、报告类内容。' : style === '通用' ? '适合大多数问答与探索场景。' : '管理员配置的输出风格模板。'}</small>
           </span>
           <em>{toolConfig.style === style ? '✓' : ''}</em>
         </button>
@@ -2056,6 +2171,24 @@ function TemplateModal({ close, createTemplate }: { close: () => void; createTem
       </label>
       <ModalFooter close={close} confirm="创建" muted onConfirm={() => createTemplate(name, prompt)} />
     </section>
+  );
+}
+
+function ConfirmModal({ request, close, confirm }: { request: ConfirmRequest; close: () => void; confirm: () => void }) {
+  return (
+    <div
+      className="modal-mask confirm-mask"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) close();
+      }}
+    >
+      <section className="modal-panel confirm-modal" role="dialog" aria-modal="true" aria-label={request.title}>
+        <ModalClose close={close} />
+        <h2>{request.title}</h2>
+        <p>{request.message}</p>
+        <ModalFooter close={close} confirm="确认删除" onConfirm={confirm} />
+      </section>
+    </div>
   );
 }
 
